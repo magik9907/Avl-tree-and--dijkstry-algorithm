@@ -102,31 +102,32 @@ namespace projekt
         {
             //side == true -lewa: 
             //side == false -prawa: 
-            Element copy= null;
+            Element copy = null;
             if (curr.city == city)
             {
                 if (side)
                 {
+                    copy = getNewRoot(curr, curr.city);
+                    copy.left = curr.left;
+                    copy.right = curr.right;
                     if (parent == null)
-                    {
-                        copy = getNewRoot(curr, curr.city);
-                    }
+                        tree = copy;
                     else
-                    {
-                        parent.left = getNewRoot(curr, curr.city);
-                        curr = parent.left;
-                    }
+                        parent.left = copy;
+
                 }
                 else
                 {
+                    copy = getNewRoot(curr, curr.city);
+                    copy.left = curr.left;
+                    copy.right = curr.right;
                     if (parent == null)
-                        tree = getNewRoot(curr, curr.city);
+                        tree = copy;
                     else
-                    {
-                        parent.right = getNewRoot(curr, curr.city);
-                        curr = parent.right;
-                    }
+                        parent.right = copy;
+
                 }
+                curr = copy;
             }
             else
             {
@@ -173,7 +174,7 @@ namespace projekt
         private Element searchNewRoot(Element curr, string name, Element parent, bool side)
         {
             int selectedSide = 0;
-            if (curr == null)
+            if (curr != null)
                 selectedSide = CompareString(name, curr.city);
             Element elem = null;
             switch (selectedSide)
@@ -189,11 +190,28 @@ namespace projekt
             {
                 switch (side)
                 {
-                    case true: curr.left = null; break;
-                    case false: curr.right = null; break;
+                    case true:
+                        if (curr == null)
+                            parent.left = null;
+                        else
+                        {
+                            parent.left = curr.right;
+                            curr.right = null; break;
+                        }
+                        break;
+                    case false: 
+                        if (curr == null)
+                            parent.right= null;
+                        else
+                        {
+                            parent.right = curr.left;
+                            curr.left = null; break;
+                        }
+                        break;
                 }
                 return curr;
             }
+
             CountScale(curr);
             switch (side)
             {

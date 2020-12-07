@@ -53,6 +53,7 @@ namespace projekt
             avl.Insert(name);
 
             avl.Print();
+            avl.Delete("m");
             avl.Delete("n");
             avl.Print();
 
