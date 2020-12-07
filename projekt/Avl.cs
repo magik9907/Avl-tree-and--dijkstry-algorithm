@@ -38,7 +38,7 @@ namespace projekt
             return 1;
         }
 
-        public void add(string city)
+        public void Insert(string city)
         {
             if (tree == null)
             {
@@ -93,6 +93,121 @@ namespace projekt
             }
         }
 
+        public void Delete(string city)
+        {
+            DelateFromBranch(city, tree, null, false);
+        }
+
+        private void DelateFromBranch(string city, Element curr, Element parent, bool side)
+        {
+            //side == true -lewa: 
+            //side == false -prawa: 
+            Element copy= null;
+            if (curr.city == city)
+            {
+                if (side)
+                {
+                    if (parent == null)
+                    {
+                        copy = getNewRoot(curr, curr.city);
+                    }
+                    else
+                    {
+                        parent.left = getNewRoot(curr, curr.city);
+                        curr = parent.left;
+                    }
+                }
+                else
+                {
+                    if (parent == null)
+                        tree = getNewRoot(curr, curr.city);
+                    else
+                    {
+                        parent.right = getNewRoot(curr, curr.city);
+                        curr = parent.right;
+                    }
+                }
+            }
+            else
+            {
+                short sideSearch = CompareString(city, curr.city);
+                switch (sideSearch)
+                {
+                    case 1: DelateFromBranch(city, curr.left, curr, true); break;
+                    case -1: DelateFromBranch(city, curr.right, curr, false); break;
+                }
+            }
+            CountScale(curr);
+            switch (side)
+            {
+                case true:
+                    if (parent == null)
+                        tree = CheckRotation(parent, curr);
+                    else
+                        parent.left = CheckRotation(parent, curr);
+                    break;
+                case false:
+                    if (parent == null)
+                        tree = CheckRotation(parent, curr);
+                    else
+                        parent.right = CheckRotation(parent, curr);
+                    break;
+            }
+        }
+
+        private Element getNewRoot(Element curr, string name)
+        {
+            Element elem = null;
+            if (curr.right != null)
+            {
+                elem = searchNewRoot(curr.right, name, curr, false);
+            }
+            else if (curr.left == null)
+            {
+                elem = searchNewRoot(curr.left, name, curr, true);
+            }
+
+            return elem;
+        }
+
+        private Element searchNewRoot(Element curr, string name, Element parent, bool side)
+        {
+            int selectedSide = 0;
+            if (curr == null)
+                selectedSide = CompareString(name, curr.city);
+            Element elem = null;
+            switch (selectedSide)
+            {
+                case 1:
+                    elem = searchNewRoot(curr.left, name, curr, true);
+                    break;
+                case -1:
+                    elem = searchNewRoot(curr.right, name, curr, false);
+                    break;
+            }
+            if (elem == null)
+            {
+                switch (side)
+                {
+                    case true: curr.left = null; break;
+                    case false: curr.right = null; break;
+                }
+                return curr;
+            }
+            CountScale(curr);
+            switch (side)
+            {
+                case true:
+                    parent.left = CheckRotation(parent, curr);
+                    break;
+                case false:
+                    parent.right = CheckRotation(parent, curr);
+                    break;
+            }
+            return elem;
+        }
+
+
         private Element CheckRotation(Element parent, Element child)
         {
             Element copy = child;
@@ -110,8 +225,6 @@ namespace projekt
                 else if (child.right.scale == 1)
                     copy = RL(child);
             }
-
-
             return copy;
         }
 
@@ -153,7 +266,7 @@ namespace projekt
 
         private void CountScale(Element elem)
         {
-
+            if (elem == null) return;
             int levelLeft = (elem.left == null) ? 0 : elem.left.level;
             int levelRight = (elem.right == null) ? 0 : elem.right.level;
             int heigherLevel = (levelLeft > levelRight) ? levelLeft : levelRight;
@@ -164,18 +277,19 @@ namespace projekt
 
         public void Print()
         {
-            Print(tree, "-");
+            Console.WriteLine(Print(tree, "-"));
         }
 
-        private void Print(Element curr, string prefix)
+        private string Print(Element curr, string prefix)
         {
-            string text = prefix + ((curr == null) ? "NULL" : curr.city + " L:" + curr.level + " S:" + curr.scale);
-            Console.WriteLine(text);
+            string text = prefix + ((curr == null) ? "NULL" : curr.city + " L:" + curr.level + " S:" + curr.scale) + "\n";
+
             if (curr != null)
             {
-                Print(curr.right, "|" + prefix);
-                Print(curr.left, "|" + prefix);
+                text = Print(curr.right, "|" + prefix) + text;
+                text = text + Print(curr.left, "|" + prefix);
             }
+            return text;
         }
 
     }

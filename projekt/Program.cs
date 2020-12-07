@@ -10,48 +10,55 @@ namespace projekt
     {
         static void Main(string[] args)
         {
+            var watch = new System.Diagnostics.Stopwatch();
+
+            watch.Start();
 
             Avl avl = new Avl();
             string name = "z";
-            avl.add(name);
+            avl.Insert(name);
             name = "q";
-            avl.add(name);
+            avl.Insert(name);
             name = "p";
-            avl.add(name);
+            avl.Insert(name);
             name = "d";
-            avl.add(name);
+            avl.Insert(name);
             name = "b";
-            avl.add(name);
+            avl.Insert(name);
             name = "o";
-            avl.add(name);
+            avl.Insert(name);
             name = "n";
-            avl.add(name);
+            avl.Insert(name);
             name = "m";
-            avl.add(name);
+            avl.Insert(name);
             name = "i";
-            avl.add(name);
+            avl.Insert(name);
             name = "l";
-            avl.add(name);
+            avl.Insert(name);
             name = "e";
-            avl.add(name);
+            avl.Insert(name);
             name = "a";
-            avl.add(name);
+            avl.Insert(name);
             name = "g";
-            avl.add(name);
+            avl.Insert(name);
             name = "w";
-            avl.add(name);
+            avl.Insert(name);
             name = "c";
-            avl.add(name);
+            avl.Insert(name);
             name = "u";
-            avl.add(name);
+            avl.Insert(name);
             name = "f";
-            avl.add(name);
+            avl.Insert(name);
             name = "v";
-            avl.add(name);
-
+            avl.Insert(name);
 
             avl.Print();
+            avl.Delete("n");
+            avl.Print();
 
+            watch.Stop();
+
+            Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
         }
     }
 }
