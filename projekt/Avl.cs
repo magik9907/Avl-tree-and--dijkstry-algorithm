@@ -27,70 +27,50 @@ namespace projekt
         {
             currCity = currCity.ToLower();
             newCity = newCity.ToLower();
-            for (short i = 0; i < newCity.Length; i++)
+            try
             {
-                if ((int)newCity[i] > (int)currCity[i])
-                    return -1;
-                if ((int)newCity[i] < (int)currCity[i])
-                    return 1;
+                for (short i = 0; i < newCity.Length; i++)
+                {
+                    if ((int)newCity[i] > (int)currCity[i])
+                        return -1;
+                    if ((int)newCity[i] < (int)currCity[i])
+                        return 1;
 
+                }
+            }
+            catch (Exception e)
+            {
+                if (newCity.Length > currCity.Length) 
+                    return -1; 
+                return 1;
             }
             return 1;
         }
 
         public void Insert(string city)
         {
-            if (tree == null)
-            {
-                tree = new Element(city);
-                return;
-            }
-            addToBranch(city, tree, null, false);
+            tree = addToBranch(city, tree);
         }
 
-        public void addToBranch(string city, Element curr, Element parent, bool side)
+        public Element addToBranch(string city, Element curr)
         {
+            if (curr == null)
+                return new Element(city);
+            if (curr.city == city)
+                return curr;
             short compareStatus = CompareString(city, curr.city);
-            short sideAssign = 0;
             switch (compareStatus)
             {
                 case 1:
-                    if (curr.left == null)
-                    {
-                        curr.left = new Element(city);
-                        city = null;
-                    }
-                    else
-                        addToBranch(city, curr.left, curr, true);
-                    sideAssign = 1;
+                    curr.left = addToBranch(city, curr.left);
                     break;
                 case -1:
-                    if (curr.right == null)
-                    {
-                        curr.right = new Element(city);
-                        city = null;
-                    }
-                    else
-                        addToBranch(city, curr.right, curr, false);
-                    sideAssign = -1;
+                    curr.right = addToBranch(city, curr.right);
                     break;
             }
             CountScale(curr);
-            if (city != null)
-            {
-                if (parent == null)
-                    tree = CheckRotation(parent, curr);
-                else
-                    switch (side)
-                    {
-                        case true:
-                            parent.left = CheckRotation(curr, curr);
-                            break;
-                        case false:
-                            parent.right = CheckRotation(curr, curr);
-                            break;
-                    }
-            }
+
+            return CheckRotation(curr, curr); ;
         }
 
         public void Delete(string city)
@@ -199,9 +179,9 @@ namespace projekt
                             curr.right = null; break;
                         }
                         break;
-                    case false: 
+                    case false:
                         if (curr == null)
-                            parent.right= null;
+                            parent.right = null;
                         else
                         {
                             parent.right = curr.left;
@@ -295,19 +275,21 @@ namespace projekt
 
         public void Print()
         {
-            Console.WriteLine(Print(tree, "-"));
+            Print(tree, "-");
         }
 
-        private string Print(Element curr, string prefix)
+        private void Print(Element curr, string prefix)
         {
-            string text = prefix + ((curr == null) ? "NULL" : curr.city + " L:" + curr.level + " S:" + curr.scale) + "\n";
+            string text = prefix + ((curr == null) ? "NULL" : curr.city + " L:" + curr.level + " S:" + curr.scale);
 
             if (curr != null)
             {
-                text = Print(curr.right, "|" + prefix) + text;
-                text = text + Print(curr.left, "|" + prefix);
+                Print(curr.right, "|" + prefix);
+                Console.WriteLine(text);
+                Print(curr.left, "|" + prefix);
             }
-            return text;
+            else Console.WriteLine(text);
+
         }
 
     }

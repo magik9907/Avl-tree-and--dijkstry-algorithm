@@ -14,47 +14,16 @@ namespace projekt
 
             watch.Start();
 
+            string[] add = { "z", "d", "f", "q", "qq", "b", "dd", "aa", "oo", "p", "t", "e", "yw", "hgf", "sdf", "qwe", "rbx", "gsw", "mcz", "mmkz", "akr", "zxv", "wra", "gud", "fds", "sdge", "hgc", "gtse", "hyd", "zggdz", "frsf", "bhddsx" };
             Avl avl = new Avl();
-            string name = "z";
-            avl.Insert(name);
-            name = "q";
-            avl.Insert(name);
-            name = "p";
-            avl.Insert(name);
-            name = "d";
-            avl.Insert(name);
-            name = "b";
-            avl.Insert(name);
-            name = "o";
-            avl.Insert(name);
-            name = "n";
-            avl.Insert(name);
-            name = "m";
-            avl.Insert(name);
-            name = "i";
-            avl.Insert(name);
-            name = "l";
-            avl.Insert(name);
-            name = "e";
-            avl.Insert(name);
-            name = "a";
-            avl.Insert(name);
-            name = "g";
-            avl.Insert(name);
-            name = "w";
-            avl.Insert(name);
-            name = "c";
-            avl.Insert(name);
-            name = "u";
-            avl.Insert(name);
-            name = "f";
-            avl.Insert(name);
-            name = "v";
-            avl.Insert(name);
 
+            for (int i = 0;i<add.Length;i++)
+                avl.Insert(add[i]);
             avl.Print();
-            avl.Delete("m");
-            avl.Delete("n");
+            Console.WriteLine();
+            string[] del = { "z"};
+            for (int i = 0; i < del.Length; i++)
+                avl.Delete(del[i]);
             avl.Print();
 
             watch.Stop();
