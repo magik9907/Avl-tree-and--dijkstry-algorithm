@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace projekt
 {
@@ -14,18 +15,27 @@ namespace projekt
 
             watch.Start();
 
-            string[] add = { "z", "d", "f", "q", "qq", "b", "dd", "aa", "oo", "p", "t", "e", "yw", "hgf", "sdf", "qwe", "rbx", "gsw", "mcz", "mmkz", "akr", "zxv", "wra", "gud", "fds", "sdge", "hgc", "gtse", "hyd", "zggdz", "frsf", "bhddsx" };
+            string[] add = { "z", "d", "f", "q", "qq", "b", "dd", "aa", "oo", "p", "t", "e", "yw", "hgf", "sdf", "qwe", "rbx", "gsw", "mcz", "mmkz", "akr", "zxv", "wra", "gud", "fds", "sdge", "hgc", "gtse", "hyd", "prehyd", "prefdshyd", "prehydeee", "prehyds", "prehydf", "preehyd", "preahyd", "preqhyd", "prevbchyd", "zggdz", "frsf", "bhddsx" };
             Avl avl = new Avl();
 
             for (int i = 0;i<add.Length;i++)
                 avl.Insert(add[i]);
             avl.Print();
             Console.WriteLine();
-            string[] del = { "z"};
+
+            string[] del = { "z","sdf", "oo" };
             for (int i = 0; i < del.Length; i++)
                 avl.Delete(del[i]);
             avl.Print();
 
+            Console.WriteLine();
+            string[] city = { "bhddsx","aaaaaaaaaaaa"};
+            for (int i = 0; i < city.Length; i++)
+            {
+                Console.Write(city[i] + ' ');
+                avl.IsCity(city[i]);
+            }
+            Console.WriteLine("prefix: pre; count: " + avl.CountPrefix("p"));
             watch.Stop();
 
             Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
