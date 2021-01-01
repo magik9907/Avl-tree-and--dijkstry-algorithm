@@ -7,51 +7,39 @@ using System.Text.RegularExpressions;
 
 namespace projekt
 {
-    public class Element
-    {
-        public string city;
-        public int scale;
-        public Element left = null;
-        public Element right = null;
-        public int level = 1;
-        public Element(string cityName)
-        {
-            city = cityName;
-        }
-    }
 
     public class Avl
     {
         public Element tree = null;
 
-        public int CountPrefix (string prefix)
+        public int CountPrefix(string prefix)
         {
-            
-            return (tree != null)?PrefixCounter(prefix, tree):0;
+
+            return (tree != null) ? PrefixCounter(prefix, tree) : 0;
         }
 
         // Regexp /^(pre)\w*/gi
         private int PrefixCounter(string pre, Element curr)
         {
             if (curr == null) return 0;
-            Regex regex = new Regex(@"^("+pre+@")\w*");
+            Regex regex = new Regex(@"^(" + pre + @")\w*");
             bool status = regex.IsMatch(curr.city);
             int counter = 0;
-            if (status) 
+            if (status)
             {
                 counter++;
-                counter += PrefixCounter(pre ,curr.right);
-                counter += PrefixCounter(pre ,curr.left);
+                counter += PrefixCounter(pre, curr.right);
+                counter += PrefixCounter(pre, curr.left);
             }
             else
             {
                 switch (CompareString(pre, curr.city))
                 {
                     case 1:
-                        counter = PrefixCounter(pre,curr.left);
+                        counter = PrefixCounter(pre, curr.left);
                         break;
                     case -1:
-                        counter = PrefixCounter(pre,curr.right);
+                        counter = PrefixCounter(pre, curr.right);
                         break;
                 }
             }
@@ -73,23 +61,23 @@ namespace projekt
             Console.WriteLine((curr == null) ? "NIE" : "TAK");
         }
 
-        public void Print()
+        public void Insert(string city)
         {
-            Print(tree, "-");
+            tree = addToBranch(new Element(city), tree);
         }
 
-        public void Insert(string city)
+        public void Insert(Element city)
         {
             tree = addToBranch(city, tree);
         }
 
-        private Element addToBranch(string city, Element curr)
+        private Element addToBranch(Element city, Element curr)
         {
             if (curr == null)
-                return new Element(city);
-            if (curr.city == city)
+                return city;
+            if (curr.city == city.city)
                 return curr;
-            short compareStatus = CompareString(city, curr.city);
+            short compareStatus = CompareString(city.city, curr.city);
             switch (compareStatus)
             {
                 case 1:
@@ -103,16 +91,16 @@ namespace projekt
             return CheckRotation(curr); ;
         }
 
-        public void Delete(string city)
+        public void Delete(string city, ref int index)
         {
             if (tree == null)
             {
                 return;
             }
-            tree = DelateFromBranch(city, tree);
+            tree = DelateFromBranch(city, tree, ref index);
         }
 
-        private Element DelateFromBranch(string city, Element curr)
+        private Element DelateFromBranch(string city, Element curr, ref int index)
         {
             //side == true -lewa: 
             //side == false -prawa:
@@ -121,6 +109,7 @@ namespace projekt
             Element copy = null;
             if (curr.city == city)
             {
+                index = curr.index;
                 copy = getNewRoot(curr, curr.city);
                 if (copy == null) return copy;
                 if (copy.city != curr.left.city)
@@ -134,8 +123,8 @@ namespace projekt
                 short sideSearch = CompareString(city, curr.city);
                 switch (sideSearch)
                 {
-                    case 1: curr.left = DelateFromBranch(city, curr.left); break;
-                    case -1: curr.right = DelateFromBranch(city, curr.right); break;
+                    case 1: curr.left = DelateFromBranch(city, curr.left, ref index); break;
+                    case -1: curr.right = DelateFromBranch(city, curr.right, ref index); break;
                 }
             }
             CountScale(curr);
@@ -261,9 +250,14 @@ namespace projekt
             elem.scale = levelLeft - levelRight;
         }
 
+        public void Print()
+        {
+            Print(tree, "-");
+        }
+
         private void Print(Element curr, string prefix)
         {
-            string text = prefix + ((curr == null) ? "NULL" : curr.city + " L:" + curr.level + " S:" + curr.scale);
+            string text = prefix + ((curr == null) ? "NULL" : curr.city + " L:" + curr.level + " S:" + curr.scale + " I:" + curr.index);
             if (curr != null)
             {
                 Print(curr.right, "|" + prefix);
@@ -296,5 +290,21 @@ namespace projekt
             }
             return 1;
         }
+
+        public int GetIndex(string city)
+        {
+            Element curr = tree;
+            while (curr != null)
+            {
+                if (curr.city == city) return curr.index;
+                switch (CompareString(city, curr.city))
+                {
+                    case -1: curr = curr.right; break;
+                    case 1: curr = curr.left; break;
+                }
+            }
+            return -1;
+        }
+
     }
 }
