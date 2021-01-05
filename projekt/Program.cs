@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
@@ -32,31 +33,32 @@ namespace projekt
             avl.IsCity(city);
         }
         /*zliczenie z prefiksem*/
-        public static int LM(string pref)
+        public static void LM(string pref)
         {
-            return avl.CountPrefix(pref);
+            int t = avl.CountPrefix(pref);
+            Console.WriteLine(/*pref + " " +*/ t);
+
         }
         /*wypisanie struktury*/
         public static void WY()
         {
             avl.Print();
+            Console.WriteLine();
         }
         /*dodanie drogi*/
         public static void DD(string cityOne, string cityTwo, int length)
         {
             int indexOne = avl.GetIndex(cityOne);
-            if (indexOne == -1) Console.WriteLine("NIE");
             int indexTwo = avl.GetIndex(cityTwo);
-            if (indexTwo == -1) Console.WriteLine("NIE");
+            if (indexTwo == -1 || indexOne == -1) { Console.WriteLine("NIE"); return; };
             graf.AddRoad(indexOne, indexTwo, length);
         }
         /*usuniecie drogi*/
         public static void UD(string cityOne, string cityTwo)
         {
             int indexOne = avl.GetIndex(cityOne);
-            if (indexOne == -1) Console.WriteLine("NIE");
             int indexTwo = avl.GetIndex(cityTwo);
-            if (indexTwo == -1) Console.WriteLine("NIE");
+            if (indexTwo == -1 || indexOne == -1) { Console.WriteLine("NIE"); return; };
             graf.RemoveRoad(indexOne, indexTwo);
         }
         /*najkrotsza droga*/
@@ -64,67 +66,127 @@ namespace projekt
         {/*
             ND miasto1 miasto2– obliczenie najkrótszej drogi z jednego miasta do drugiego(wypisanie jej długości)*/
             int indexOne = avl.GetIndex(startCity);
-            if (indexOne == -1) Console.WriteLine("NIE");
             int indexTwo = avl.GetIndex(endCity);
-            if (indexTwo == -1) Console.WriteLine("NIE");
+            if (indexTwo == -1 || indexOne == -1) { Console.WriteLine("NIE"); return; };
             Console.WriteLine(graf.FindRoad(indexOne, indexTwo));
         }
         /*sprawdzenie do ilu sie skroci droga*/
         public static void IS(string startCity, string cityOne, string cityTwo, int length)
         {
-            /*            IS miasto1 miasto2 miasto3 długość – obliczenie do ilu miast skróci się najkrótsza droga z
+            /*   
+             *   UWAGA: dla uproszczenia zakładamy, że w testach zapytania
+dotyczące ostatniej funkcjonalności zawsze pojawiają się na końcu pliku testowego (gdy graf już
+się nie zmienia) i dla danego testu miasto A jest zawsze takie samo we wszystkich zapytaniach.
+
+
+             *   IS miasto1 miasto2 miasto3 długość – obliczenie do ilu miast skróci się najkrótsza droga z
                  miasta1 po potencjalnym dodaniu drogi pomiędzy miastem2 i miastem3 o zadanej długości
             */
+            Console.WriteLine(0);
         }
         static void Main(string[] args)
         {
             var watch = new System.Diagnostics.Stopwatch();
 
             watch.Start();
-            /*
-                        string[] add = { "1", "2", "3", "4", "5", "6", "z", "d", "f", "q", "qq", "b", "dd", "aa", "oo", "p", "t", "e", "yw", "hgf", "sdf", "qwe", "rbx", "gsw", "mcz", "mmkz", "akr", "zxv", "wra", "gud", "fds", "sdge", "hgc", "gtse", "hyd", "prehyd", "prefdshyd", "prehydeee", "prehyds", "prehydf", "preehyd", "preahyd", "preqhyd", "prevbchyd", "zggdz", "frsf", "bhddsx" };*/
-
-            string[] add = { "1", "2", "3", "4", "5", "6" };
-
-
-            for (int i = 0; i < add.Length; i++)
-                DM(add[i]);
-            WY();
-            string[] del = { "z", "sdf", "oo" };
-            for (int i = 0; i < del.Length; i++)
-                UM(del[i]);
-            WY();
-
-            Console.WriteLine();
-            string[] city = { "bhddsx", "aaaaaaaaaaaa" };
-            for (int i = 0; i < city.Length; i++)
-            {
-                Console.Write(city[i] + ' ');
-                WM(city[i]);
-            }
-            Console.WriteLine("prefix: pre; count: " + LM("p"));
-            watch.Stop();
-
-            string[] dd = {
-                "1 2 7",
-                "1 3 9",
-                "1 6 14",
-                "2 3 10",
-                "2 4 15",
-                "3 4 11",
-                "3 6 2",
-                "6 5 9",
-                "4 5 6",
-            };
             string[] parts;
-            for (int i = 0; i < dd.Length; i++)
+
+
+
+            switch (false)
             {
-                parts = dd[i].Split(' ');
-                DD(parts[0], parts[1], Int32.Parse(parts[2]));
+                case true:
+
+                    string[] add = { "1", "2", "3", "4", "5", "6", "z", "d", "f", "q", "qq", "b", "dd", "aa", "oo", "t", "e", "yw", "hgf", "sdf", "qwe", "rbx", "gsw", "mcz", "mmkz", "akr", "zxv", "wra", "gud", "fds", "sdge", "hgc", "gtse", "hyd", "prehyd", "p", "prefdshyd", "prefdshyd", "prefdshyd", "prefdshyd", "prefdshyd", "prehydeee", "prehyds", "prehydf", "preehyd", "preahyd", "preqhyd", "prevbchyd", "zggdz", "frsf", "bhddsx" };
+
+                    //  string[] add = { "1", "2", "3", "4", "5", "6" };
+
+
+                    for (int i = 0; i < add.Length; i++)
+                        DM(add[i]);
+                    //WY();
+                    string[] del = { /*, "sdge", "hgc", "gtse", "hyd", "sdge", "hgc",  "prefdshyd","z", "gtse", "hyd", "sdf", "fd", "fds", "prefdshyd", "fe", */ "oo", "mcz", };
+                    for (int i = 0; i < del.Length; i++)
+                        UM(del[i]);
+
+                    Console.WriteLine();
+                    string[] city = { "bhddsx", "aaaaaaaaaaaa" };
+                    for (int i = 0; i < city.Length; i++)
+                    {
+                        Console.Write(city[i] + ' ');
+                        WM(city[i]);
+                    }
+                    //WY();
+                    LM("p");
+
+                    string[] dd = {
+                        "1 2 7",
+                        "1 3 9",
+                        "1 6 14",
+                        "2 3 10",
+                        "2 4 15",
+                        "3 4 11",
+                        "3 6 2",
+                        "3 6 3",
+                        "4 5 6",
+                    };
+
+                    for (int i = 0; i < dd.Length; i++)
+                    {
+                        parts = dd[i].Split(' ');
+                        DD(parts[0], parts[1], Int32.Parse(parts[2]));
+                    }
+                    ND("1", "5");
+                    break;
+                case false:
+                   // StreamReader sr = new StreamReader("test.txt");
+
+                    StreamReader sr = new StreamReader("projekt1_in7.txt");
+                    string lines = sr.ReadLine();
+                    string line;
+                    int k = 0;
+                    while (k<int.Parse(lines))
+                    {
+                        line = sr.ReadLine();
+                        parts = line.Split(' ');
+                        k++;
+                        switch (parts[0])
+                        {
+                            case "DM":
+                                DM(parts[1]);
+                                break;
+                            case "UM":
+                                UM(parts[1]);
+                                break;
+                            case "WM":
+                                WM(parts[1]);
+                                break;
+                            case "LM":
+                                LM(parts[1]);
+                                break;
+                            case "WY":
+                                WY();
+                                break;
+                            case "DD":
+                                DD(parts[1], parts[2], int.Parse(parts[3]));
+                                break;
+                            case "UD":
+                                UD(parts[1], parts[2]);
+                                break;
+                            case "ND":
+                                ND(parts[1], parts[2]);
+                                break;
+                            case "IS":
+                                IS(parts[1], parts[2], parts[3], int.Parse(parts[4]));
+                                break;
+                        }
+                    }
+                    break;
             }
 
-            ND("1", "5");
+            watch.Stop();
             Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
+
         }
     }
 }

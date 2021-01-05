@@ -10,19 +10,35 @@ namespace projekt
     {
         // przechowuje puste miejsca w tablicy array
         List<int> empty = new List<int>();
-        //przechowuje liste miast (id w drzewie avl)
+        //przechowuje liste miast sasiadujacych i dlugosc drogi (id z drzewa avl)
         List<GElem> array = new List<GElem>();
         private class GElem
         {
             // przechowuje liste sasiadow
-            public List<int> incList = new List<int>();
+            public string city;
+            public List<NeigbourVertex> incList = new List<NeigbourVertex>();
+            public GElem(string name)
+            {
+                city = name;
+            }
         }
-        List<List<int>> edges = new List<List<int>>();
+
+        class NeigbourVertex
+        {
+            public int index = 0;
+            public int length = 0;
+
+            public NeigbourVertex(int i, int l)
+            {
+                index = i;
+                length = l;
+            }
+        }
 
         class TableElement
         {
             public int prevVertex = -1;
-            public int length = -1;
+            public int length = int.MaxValue;
         }
 
         class HeapElem
@@ -37,50 +53,16 @@ namespace projekt
             }
         }
 
-        private void SetRoads(int i)
-        {
-            try
-            {
-                if (edges[i] == null)
-                    edges.Add(new List<int>());
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                edges.Add(new List<int>());
-            }
-            for (int j = 0; j <= i; j++)
-            {
-                try
-                {
-                    edges[i][j] = 0;
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-                    edges[i].Add(0);
-                }
-
-                try
-                {
-                    edges[j][i] = 0;
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-                    edges[j].Add(0);
-                }
-            }
-        }
-
         public void Insert(Element city)
         {
             if (empty.Count == 0)
             {
-                array.Add(new GElem());
+                array.Add(new GElem(city.city));
                 city.index = array.Count() - 1;
-                SetRoads(city.index);
             }
             else
             {
-                array[empty[0]] = new GElem();
+                array[empty[0]] = new GElem(city.city);
                 city.index = empty[0];
                 empty.RemoveAt(0);
             }
@@ -91,35 +73,43 @@ namespace projekt
             GElem node = array[index];
             array[index] = null;
             empty.Add(index);
-            SetRoads(index);
         }
 
-        void AddRoad(GElem e, int i, int j, int scale)
+        void AddRoad(GElem e, int j, int scale)
         {
-            e.incList.Add(j);
-            edges[i][j] = scale;
-            edges[j][i] = scale;
+            foreach (var x in e.incList)
+            {
+                if (x.index == j)
+                {
+                    x.length = scale;
+                    return;
+                }
+            }
+            e.incList.Add(new NeigbourVertex(j, scale));
         }
 
         public void AddRoad(int indexOne, int indexTwo, int length)
         {
-            AddRoad(array.ElementAt(indexOne), indexOne, indexTwo, length);
-            AddRoad(array.ElementAt(indexTwo), indexTwo, indexOne, length);
+            AddRoad(array.ElementAt(indexOne), indexTwo, length);
+            AddRoad(array.ElementAt(indexTwo), indexOne, length);
         }
 
-        void RemoveRoad(GElem e, int i, int j)
+        void RemoveRoad(GElem e, int j)
         {
-            edges[i][j] = 0;
-            edges[j][i] = 0;
+            List<NeigbourVertex> incList = e.incList;
+            for (int i = 0; i < incList.Count; i++)
+            {
+                if (incList[i].index == j) { incList.RemoveAt(i); return; }
+            }
         }
 
         public void RemoveRoad(int indexOne, int indexTwo)
         {
-            RemoveRoad(array.ElementAt(indexOne), indexOne, indexTwo);
-            RemoveRoad(array.ElementAt(indexTwo), indexTwo, indexOne);
+            RemoveRoad(array.ElementAt(indexOne), indexTwo);
+            RemoveRoad(array.ElementAt(indexTwo), indexOne);
         }
 
-        private List<HeapElem> InsertHeap(List<HeapElem> heap, int val, int vertex)
+        private List<HeapElem> InsertHeap(List<HeapElem> heap, int vertex, int val)
         {
             HeapElem temp;
             int tempPos;
@@ -186,22 +176,16 @@ namespace projekt
             return heap;
         }
 
-        public int FindRoad(int v, int end)
+        public string FindRoad(int v, int end)
         {
             List<HeapElem> heap = new List<HeapElem>();
-            heap = InsertHeap(heap, 0, v);
-            /*heap = InsertHeap(heap, 5, 1);
-            heap = InsertHeap(heap, 2, 1);
-            heap = InsertHeap(heap, 8, 1);
-            heap = InsertHeap(heap, 4, 1);
-            heap = InsertHeap(heap, 6, 1);
-            heap = RemoveHeap(heap);*/
+            heap = InsertHeap(heap, v, 0);
+
             HeapElem el;
             bool[] visited = new bool[array.Count];
             int vertex;
             TableElement[] table = new TableElement[array.Count];
-            for (int x = 0; x < table.Length; x++)
-                table[x] = new TableElement();
+            table[v] = new TableElement();
             table[v].length = 0;
             table[v].prevVertex = v;
             while (heap.Count > 0)
@@ -211,22 +195,45 @@ namespace projekt
                 vertex = el.vertex;
                 if (visited[vertex] == true) continue;
 
-                Console.WriteLine(vertex);
                 visited[vertex] = true;
                 foreach (var x in array[vertex].incList)
                 {
-                    if (table[vertex].length + edges[vertex][x] <= table[x].length || table[x].length == -1)
+                    if (table[x.index] == null)
+                        table[x.index] = new TableElement();
+                    if (table[vertex].length + x.length <= table[x.index].length)
                     {
-                        table[x].length = table[vertex].length + edges[vertex][x];
-                        table[x].prevVertex = vertex;
+                        table[x.index].length = table[vertex].length + x.length;
+                        table[x.index].prevVertex = vertex;
                     }
-                    if (visited[x] == false)
-                        heap = InsertHeap(heap, table[x].length, x);
+                    if (visited[x.index] == false)
+                        heap = InsertHeap(heap, x.index, table[x.index].length);
                 }
             }
+            if (table[end] == null) return "NIE";
+            int prev = end;
+            string line = array[prev].city;
 
-            Console.WriteLine("Najkrosza droga " + table[end].length);
-            return 0;
+            int sum = 0;
+
+            do
+            {
+                foreach (var x in array[prev].incList)
+                {
+                    if (x.index == table[prev].prevVertex)
+                    {
+                        sum += x.length;
+                    }
+                }
+
+
+
+                line = array[table[prev].prevVertex].city + "-" + line;
+                prev = table[prev].prevVertex;
+            }
+            while (prev != v && prev != -1);
+            line = table[end].length + " " + sum.ToString() + ": ";
+            return line;
+            return table[end].length.ToString();
         }
 
     }

@@ -112,9 +112,9 @@ namespace projekt
                 index = curr.index;
                 copy = getNewRoot(curr, curr.city);
                 if (copy == null) return copy;
-                if (copy.city != curr.left.city)
+                if (curr.left != null && copy.city != curr.left.city)
                     copy.left = curr.left;
-                if (copy.city != curr.right.city)
+                if (curr.right != null && copy.city != curr.right.city)
                     copy.right = curr.right;
                 curr = copy;
             }
@@ -134,55 +134,59 @@ namespace projekt
 
         private Element getNewRoot(Element curr, string name)
         {
+            Element newRoot = null;
             if (curr.right != null)
             {
-                return searchNewRoot(curr.right, name);
+                curr.right = searchNewRoot(curr.right, name,ref newRoot);
             }
-            else if (curr.left == null)
+            else if (curr.left != null)
             {
-                return searchNewRoot(curr.left, name);
+                curr.left = searchNewRoot(curr.left, name, ref newRoot);
             }
-            return null;
+            return newRoot;
         }
 
-        private Element searchNewRoot(Element curr, string name)
+        private Element searchNewRoot(Element curr, string name, ref Element newRoot)
         {
             if (curr == null)
                 return null;
             int selectedSide = CompareString(name, curr.city);
-            Element elem = null;
             switch (selectedSide)
             {
                 case 1:
-                    elem = searchNewRoot(curr.left, name);
-                    if (elem != null && elem.left != null)
+                    curr.left = searchNewRoot(curr.left, name, ref newRoot);
+                    if (curr.left == null && newRoot == null) { newRoot = curr; return null; }
+                    /*if (elem != null && elem.left != null)
                     {
                         curr.left = elem.left;
                         elem.left = null;
-                    }
+                    }*/
                     break;
                 case -1:
-                    elem = searchNewRoot(curr.right, name);
-                    if (elem != null && elem.right != null)
+                    curr.right = searchNewRoot(curr.right, name, ref newRoot);
+                    if (curr.right == null && newRoot == null) { newRoot = curr; return null; }
+
+                    /*if (elem != null && elem.right != null)
                     {
                         curr.right = elem.right;
                         elem.right = null;
-                    }
+                    }*/
                     break;
             }
-            if (elem == null)
+            if(newRoot.right != null)
             {
-                return curr;
+                curr.left = newRoot.right;
+                newRoot.right = null;
             }
-            if (elem.city == curr.left.city)
-                curr.left = null;
-            if (elem.city == curr.right.city)
-                curr.right = null;
+            if (newRoot.left != null)
+            {
+                curr.right = newRoot.left;
+                newRoot.left = null;
+            }
             CountScale(curr);
             curr = CheckRotation(curr);
-            return elem;
+            return curr;
         }
-
 
         private Element CheckRotation(Element child)
         {
