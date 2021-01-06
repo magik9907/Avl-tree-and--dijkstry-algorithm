@@ -17,7 +17,8 @@ namespace projekt
         {
             Element elem = new Element(city);
             avl.Insert(elem);
-            graf.Insert(elem);
+            if (elem.index != -2)
+                graf.Insert(elem);
         }
         /*usuniecie miasta*/
         public static void UM(string city)
@@ -92,12 +93,11 @@ się nie zmienia) i dla danego testu miasto A jest zawsze takie samo we wszystki
             string[] parts;
 
 
-
             switch (false)
             {
                 case true:
 
-                    string[] add = { "1", "2", "3", "4", "5", "6", "z", "d", "f", "q", "qq", "b", "dd", "aa", "oo", "t", "e", "yw", "hgf", "sdf", "qwe", "rbx", "gsw", "mcz", "mmkz", "akr", "zxv", "wra", "gud", "fds", "sdge", "hgc", "gtse", "hyd", "prehyd", "p", "prefdshyd", "prefdshyd", "prefdshyd", "prefdshyd", "prefdshyd", "prehydeee", "prehyds", "prehydf", "preehyd", "preahyd", "preqhyd", "prevbchyd", "zggdz", "frsf", "bhddsx" };
+                    string[] add = { "1", "1", "1", "1", "2", "3", "4", "5", "6", "z", "d", "f", "q", "qq", "b", "dd", "aa", "oo", "t", "e", "yw", "hgf", "sdf", "qwe", "rbx", "gsw", "mcz", "mmkz", "akr", "zxv", "wra", "gud", "fds", "sdge", "hgc", "gtse", "hyd", "prehyd", "p", "prefdshyd", "prefdshyd", "prefdshyd", "prefdshyd", "prefdshyd", "prehydeee", "prehyds", "prehydf", "preehyd", "preahyd", "preqhyd", "prevbchyd", "zggdz", "frsf", "bhddsx" };
 
                     //  string[] add = { "1", "2", "3", "4", "5", "6" };
 
@@ -139,13 +139,12 @@ się nie zmienia) i dla danego testu miasto A jest zawsze takie samo we wszystki
                     ND("1", "5");
                     break;
                 case false:
-                   // StreamReader sr = new StreamReader("test.txt");
 
-                    StreamReader sr = new StreamReader("projekt1_in7.txt");
+                    StreamReader sr = new StreamReader("projekt1_in8.txt");
                     string lines = sr.ReadLine();
                     string line;
                     int k = 0;
-                    while (k<int.Parse(lines))
+                    while (k < int.Parse(lines))
                     {
                         line = sr.ReadLine();
                         parts = line.Split(' ');

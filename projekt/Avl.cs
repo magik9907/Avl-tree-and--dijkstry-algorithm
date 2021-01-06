@@ -76,7 +76,10 @@ namespace projekt
             if (curr == null)
                 return city;
             if (curr.city == city.city)
+            {
+                city.index = -2;
                 return curr;
+            }
             short compareStatus = CompareString(city.city, curr.city);
             switch (compareStatus)
             {

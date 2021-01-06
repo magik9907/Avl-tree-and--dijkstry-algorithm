@@ -12,6 +12,7 @@ namespace projekt
         List<int> empty = new List<int>();
         //przechowuje liste miast sasiadujacych i dlugosc drogi (id z drzewa avl)
         List<GElem> array = new List<GElem>();
+
         private class GElem
         {
             // przechowuje liste sasiadow
@@ -39,6 +40,7 @@ namespace projekt
         {
             public int prevVertex = -1;
             public int length = int.MaxValue;
+            public bool onHeap;
         }
 
         class HeapElem
@@ -114,17 +116,17 @@ namespace projekt
             HeapElem temp;
             int tempPos;
             heap.Add(new HeapElem(val, vertex));
-            int valPos = heap.Count - 1;
+            int valPos = heap.Count;
 
             tempPos = valPos / 2;
-            while (valPos > 0 && heap[tempPos].length > val)
+            while (valPos > 1 && heap[tempPos - 1].length > val)
             {
-                temp = heap[tempPos];
-                heap.RemoveAt(tempPos);
-                heap.Add(temp);
                 temp = heap[valPos - 1];
                 heap.RemoveAt(valPos - 1);
-                heap.Insert(tempPos, temp);
+                heap.Insert(tempPos - 1, temp);
+                temp = heap[tempPos];
+                heap.RemoveAt(tempPos);
+                heap.Insert(valPos - 1, temp);
                 valPos = tempPos;
                 tempPos = valPos / 2;
             }
@@ -133,45 +135,73 @@ namespace projekt
 
         private List<HeapElem> RemoveHeap(List<HeapElem> heap)
         {
-            HeapElem temp, tempNew;
-            int tempPos = heap.Count;
-            int pos;
-            temp = heap[tempPos - 1];
-            int len = temp.length;
-            heap.RemoveAt(tempPos - 1);
+            HeapElem temp;
+            heap.RemoveAt(0);
             if (heap.Count == 0)
                 return heap;
-            heap.RemoveAt(0);
+            int tempPos;
+            int pos;
+            temp = heap[heap.Count - 1];
+            heap.RemoveAt(heap.Count - 1);
+            int len = temp.length;
             heap.Insert(0, temp);
             tempPos = 1;
             try
             {
-                while ((len > heap[2 * tempPos - 1].length) && len > heap[2 * tempPos].length)
+                while ((heap[tempPos * 2 - 1] != null && len > heap[tempPos * 2 - 1].length)
+                    || (heap[tempPos * 2 + 1 - 1] != null && len > heap[tempPos * 2 + 1 - 1].length))
                 {
-                    if (heap[2 * tempPos - 1].length > heap[2 * tempPos].length)
+                    pos = tempPos;
+                    switch (heap[tempPos * 2 - 1] != null 
+                        && len > heap[tempPos * 2 - 1].length 
+                        && heap[tempPos * 2 - 1].length < heap[tempPos * 2 +1- 1].length)
                     {
-                        pos = 2 * tempPos + 1;
+                        case true: //position 2*index lewo
+                            tempPos = tempPos * 2;
+                            break;
+                        case false://position 2*index +1 prawo
+                            tempPos = tempPos * 2 + 1;
+                            break;
                     }
-                    else
-                    {
-                        pos = 2 * tempPos;
-                    }
-                    tempNew = heap[pos - 1];
-                    heap.RemoveAt(pos - 1);
-                    heap.Insert(tempPos - 1, tempNew);
-                    tempPos = pos;
+                    temp = heap[tempPos - 1];
+                    heap.RemoveAt(tempPos - 1);
+                    heap.Insert(pos - 1, temp);
+                    temp = heap[pos];
+                    heap.RemoveAt(pos);
+                    heap.Insert(tempPos - 1, temp);
                 }
             }
-            catch (Exception e)
+            catch (ArgumentOutOfRangeException e)
             {
-                if (heap.Count == 2 * tempPos)
+            }
+            return heap;
+        }
+
+        private List<HeapElem> UpdateHeap(List<HeapElem> heap, int index, int newVal)
+        {
+            int i = 0;
+            for (i = 0; i < heap.Count; i++)
+            {
+                if (heap[i].vertex == index)
                 {
-                    pos = 2 * tempPos;
-                    tempNew = heap[pos - 1];
-                    heap.RemoveAt(pos - 1);
-                    heap.Insert(tempPos - 1, tempNew);
-                    tempPos = pos;
+                    heap[i].length = newVal;
+                    break;
                 }
+            }
+            if (i == 0) return heap;
+            HeapElem temp;
+            i++;
+            int newPos = i / 2;
+            while (i > 1 && newVal < heap[newPos - 1].length)
+            {
+                temp = heap[i - 1];
+                heap.RemoveAt(i - 1);
+                heap.Insert(newPos - 1, temp);
+                temp = heap[newPos];
+                heap.RemoveAt(newPos);
+                heap.Insert(i - 1, temp);
+                i = newPos;
+                newPos /= 2;
             }
             return heap;
         }
@@ -179,20 +209,25 @@ namespace projekt
         public string FindRoad(int v, int end)
         {
             List<HeapElem> heap = new List<HeapElem>();
+         
             heap = InsertHeap(heap, v, 0);
 
-            HeapElem el;
+            HeapElem el = null;
             bool[] visited = new bool[array.Count];
             int vertex;
             TableElement[] table = new TableElement[array.Count];
             table[v] = new TableElement();
             table[v].length = 0;
             table[v].prevVertex = v;
+            table[v].onHeap = true;
+            int oldVal;
             while (heap.Count > 0)
             {
                 el = heap[0];
                 heap = RemoveHeap(heap);
                 vertex = el.vertex;
+                table[vertex].onHeap = false;
+                if (vertex == end) break;
                 if (visited[vertex] == true) continue;
 
                 visited[vertex] = true;
@@ -200,40 +235,36 @@ namespace projekt
                 {
                     if (table[x.index] == null)
                         table[x.index] = new TableElement();
+                    oldVal = table[x.index].length;
+
                     if (table[vertex].length + x.length <= table[x.index].length)
                     {
                         table[x.index].length = table[vertex].length + x.length;
                         table[x.index].prevVertex = vertex;
+                        if (table[x.index].onHeap)
+                            heap = UpdateHeap(heap, x.index, table[x.index].length);
                     }
+                    
                     if (visited[x.index] == false)
+                    {
                         heap = InsertHeap(heap, x.index, table[x.index].length);
+                        table[x.index].onHeap = true;
+                    }
                 }
+                
             }
             if (table[end] == null) return "NIE";
             int prev = end;
             string line = array[prev].city;
 
-            int sum = 0;
-
             do
             {
-                foreach (var x in array[prev].incList)
-                {
-                    if (x.index == table[prev].prevVertex)
-                    {
-                        sum += x.length;
-                    }
-                }
-
-
-
                 line = array[table[prev].prevVertex].city + "-" + line;
                 prev = table[prev].prevVertex;
             }
             while (prev != v && prev != -1);
-            line = table[end].length + " " + sum.ToString() + ": ";
+            line = table[end].length + ": "+line;
             return line;
-            return table[end].length.ToString();
         }
 
     }
