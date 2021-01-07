@@ -38,7 +38,6 @@ namespace projekt
         {
             int t = avl.CountPrefix(pref);
             Console.WriteLine(/*pref + " " +*/ t);
-
         }
         /*wypisanie struktury*/
         public static void WY()
@@ -50,44 +49,38 @@ namespace projekt
         public static void DD(string cityOne, string cityTwo, int length)
         {
             int indexOne = avl.GetIndex(cityOne);
+            if (indexOne == -1) { Console.WriteLine("NIE"); return; };
             int indexTwo = avl.GetIndex(cityTwo);
-            if (indexTwo == -1 || indexOne == -1) { Console.WriteLine("NIE"); return; };
+            if (indexTwo == -1) { Console.WriteLine("NIE"); return; };
             graf.AddRoad(indexOne, indexTwo, length);
         }
         /*usuniecie drogi*/
         public static void UD(string cityOne, string cityTwo)
         {
             int indexOne = avl.GetIndex(cityOne);
+            if (indexOne == -1) { Console.WriteLine("NIE"); return; };
             int indexTwo = avl.GetIndex(cityTwo);
-            if (indexTwo == -1 || indexOne == -1) { Console.WriteLine("NIE"); return; };
+            if (indexTwo == -1 ) { Console.WriteLine("NIE"); return; };
             graf.RemoveRoad(indexOne, indexTwo);
         }
         /*najkrotsza droga*/
         public static void ND(string startCity, string endCity)
-        {/*
-            ND miasto1 miasto2– obliczenie najkrótszej drogi z jednego miasta do drugiego(wypisanie jej długości)*/
+        {
             int indexOne = avl.GetIndex(startCity);
+            if (indexOne == -1) { Console.WriteLine("NIE"); return; };
             int indexTwo = avl.GetIndex(endCity);
-            if (indexTwo == -1 || indexOne == -1) { Console.WriteLine("NIE"); return; };
+            if (indexTwo == -1 ) { Console.WriteLine("NIE"); return; };
             Console.WriteLine(graf.FindRoad(indexOne, indexTwo));
         }
         /*sprawdzenie do ilu sie skroci droga*/
         public static void IS(string startCity, string cityOne, string cityTwo, int length)
         {
-            /*   
-             *   UWAGA: dla uproszczenia zakładamy, że w testach zapytania
-dotyczące ostatniej funkcjonalności zawsze pojawiają się na końcu pliku testowego (gdy graf już
-się nie zmienia) i dla danego testu miasto A jest zawsze takie samo we wszystkich zapytaniach.
-
-
-             *   IS miasto1 miasto2 miasto3 długość – obliczenie do ilu miast skróci się najkrótsza droga z
-                 miasta1 po potencjalnym dodaniu drogi pomiędzy miastem2 i miastem3 o zadanej długości
-            */
             int indexOne = avl.GetIndex(startCity);
+            if (indexOne == -1 ) { Console.WriteLine("NIE"); return; };
             int indexTwo = avl.GetIndex(cityOne);
+            if (indexTwo == -1 ) { Console.WriteLine("NIE"); return; };
             int indexThree = avl.GetIndex(cityTwo);
-            if (indexTwo == -1 || indexOne == -1 || indexThree == -1) { Console.WriteLine("NIE"); return; };
-
+            if (indexThree == -1) { Console.WriteLine("NIE"); return; };
             Console.WriteLine(graf.VirtRoad(indexOne,indexTwo,indexThree,length));
         }
         static void Main(string[] args)
@@ -103,25 +96,22 @@ się nie zmienia) i dla danego testu miasto A jest zawsze takie samo we wszystki
                 case true:
 
                     string[] add = { "1", "1", "1", "1", "2", "3", "4", "5", "6", "z", "d", "f", "q", "qq", "b", "dd", "aa", "oo", "t", "e", "yw", "hgf", "sdf", "qwe", "rbx", "gsw", "mcz", "mmkz", "akr", "zxv", "wra", "gud", "fds", "sdge", "hgc", "gtse", "hyd", "prehyd", "p", "prefdshyd", "prefdshyd", "prefdshyd", "prefdshyd", "prefdshyd", "prehydeee", "prehyds", "prehydf", "preehyd", "preahyd", "preqhyd", "prevbchyd", "zggdz", "frsf", "bhddsx" };
-
-                    //  string[] add = { "1", "2", "3", "4", "5", "6" };
-
-
                     for (int i = 0; i < add.Length; i++)
                         DM(add[i]);
-                    //WY();
+                    WY();
                     string[] del = { /*, "sdge", "hgc", "gtse", "hyd", "sdge", "hgc",  "prefdshyd","z", "gtse", "hyd", "sdf", "fd", "fds", "prefdshyd", "fe", */ "oo", "mcz", };
                     for (int i = 0; i < del.Length; i++)
                         UM(del[i]);
 
                     Console.WriteLine();
                     string[] city = { "bhddsx", "aaaaaaaaaaaa" };
+                    WY();
                     for (int i = 0; i < city.Length; i++)
                     {
                         Console.Write(city[i] + ' ');
                         WM(city[i]);
                     }
-                    //WY();
+                    
                     LM("p");
 
                     string[] dd = {
