@@ -1,0 +1,24 @@
+23
+DM miasto1
+DM miasto2
+DM miasto3
+DM miasto4
+DM miasto5
+DM miasto6
+DD miasto2 miasto3 27
+DD miasto2 miasto4 93
+DD miasto3 miasto6 99
+DD miasto4 miasto6 81
+DD miasto4 miasto5 37
+DD miasto1 miasto6 39
+DD miasto1 miasto2 83
+DD miasto5 miasto6 1
+ND miasto1 miasto4
+DD miasto1 miasto5 96
+DD miasto3 miasto4 23
+ND miasto1 miasto3
+IS miasto1 miasto2 miasto6 5
+IS miasto1 miasto2 miasto6 18
+IS miasto1 miasto2 miasto5 43
+IS miasto1 miasto3 miasto5 37
+IS miasto1 miasto1 miasto3 3

@@ -83,7 +83,12 @@ się nie zmienia) i dla danego testu miasto A jest zawsze takie samo we wszystki
              *   IS miasto1 miasto2 miasto3 długość – obliczenie do ilu miast skróci się najkrótsza droga z
                  miasta1 po potencjalnym dodaniu drogi pomiędzy miastem2 i miastem3 o zadanej długości
             */
-            Console.WriteLine(0);
+            int indexOne = avl.GetIndex(startCity);
+            int indexTwo = avl.GetIndex(cityOne);
+            int indexThree = avl.GetIndex(cityTwo);
+            if (indexTwo == -1 || indexOne == -1 || indexThree == -1) { Console.WriteLine("NIE"); return; };
+
+            Console.WriteLine(graf.VirtRoad(indexOne,indexTwo,indexThree,length));
         }
         static void Main(string[] args)
         {
@@ -140,7 +145,7 @@ się nie zmienia) i dla danego testu miasto A jest zawsze takie samo we wszystki
                     break;
                 case false:
 
-                    StreamReader sr = new StreamReader("projekt1_in8.txt");
+                    StreamReader sr = new StreamReader("../../projekt1_in7.txt");
                     string lines = sr.ReadLine();
                     string line;
                     int k = 0;

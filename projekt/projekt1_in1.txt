@@ -1,0 +1,14 @@
+13
+DM bialystok
+DM warszawa
+DM bilgoraj
+DM wejherowo
+DM bielsk
+DM lublin
+WM bialystok
+LM bi
+UM bilgoraj
+LM bi
+WM bilgoraj
+DM wroclaw
+LM w

@@ -256,7 +256,7 @@ namespace projekt
             if (table[end] == null) return "NIE";
             int prev = end;
             string line = array[prev].city;
-
+            return table[end].length.ToString();
             do
             {
                 line = array[table[prev].prevVertex].city + "-" + line;
@@ -266,6 +266,96 @@ namespace projekt
             line = table[end].length + ": "+line;
             return line;
         }
+
+        public string VirtRoad(int start, int startNewRoad,int endNewRoad, int roadLength)
+        {
+            TableElement[] table = GenerateShortestPath(start);
+            List<HeapElem> heap = new List<HeapElem>();
+            bool[] isVisisted = new bool[array.Count];
+            int cityShorterPath = 0;
+            if (table[endNewRoad].length > roadLength + table[startNewRoad].length) { 
+                cityShorterPath++;
+                heap = InsertHeap(heap, endNewRoad, roadLength + table[startNewRoad].length);
+            }else if (table[startNewRoad].length > roadLength + table[endNewRoad].length)
+            {
+                cityShorterPath++;
+                heap = InsertHeap(heap, startNewRoad, roadLength + table[endNewRoad].length);
+            }
+            HeapElem el = null;
+            while (heap.Count > 0 && cityShorterPath < 100) 
+            {
+                el = heap[0];
+                heap = RemoveHeap(heap);
+                table[el.vertex].onHeap= false;
+                isVisisted[el.vertex] = true;
+                foreach (var x in array[el.vertex].incList)
+                {
+                    if (table[x.index].length > el.length +x.length && !isVisisted[x.index])
+                    {
+                        if (table[x.index].onHeap == true)
+                        {
+                            heap = UpdateHeap(heap, x.index, el.length + x.length);
+                        }
+                        else {
+                            cityShorterPath++;
+                            heap = InsertHeap(heap, x.index, el.length + x.length);
+                            table[x.index].onHeap = true;
+                        }
+                    }
+                }
+            } 
+            return (cityShorterPath>=100)?"100+":cityShorterPath.ToString();
+        }
+
+        private TableElement[] GenerateShortestPath(int v)
+        {
+            List<HeapElem> heap = new List<HeapElem>();
+
+            heap = InsertHeap(heap, v, 0);
+
+            HeapElem el = null;
+            bool[] visited = new bool[array.Count];
+            int vertex;
+            TableElement[] table = new TableElement[array.Count];
+            table[v] = new TableElement();
+            table[v].length = 0;
+            table[v].prevVertex = v;
+            table[v].onHeap = true;
+            int oldVal;
+            while (heap.Count > 0)
+            {
+                el = heap[0];
+                heap = RemoveHeap(heap);
+                vertex = el.vertex;
+                table[vertex].onHeap = false;
+                if (visited[vertex] == true) continue;
+
+                visited[vertex] = true;
+                foreach (var x in array[vertex].incList)
+                {
+                    if (table[x.index] == null)
+                        table[x.index] = new TableElement();
+                    oldVal = table[x.index].length;
+
+                    if (table[vertex].length + x.length <= table[x.index].length)
+                    {
+                        table[x.index].length = table[vertex].length + x.length;
+                        table[x.index].prevVertex = vertex;
+                        if (table[x.index].onHeap)
+                            heap = UpdateHeap(heap, x.index, table[x.index].length);
+                    }
+
+                    if (visited[x.index] == false)
+                    {
+                        heap = InsertHeap(heap, x.index, table[x.index].length);
+                        table[x.index].onHeap = true;
+                    }
+                }
+
+            }
+            return table;
+        }
+
 
     }
 }
