@@ -18,7 +18,7 @@ namespace projekt
             Element elem = new Element(city);
             avl.Insert(elem);
             if (elem.index != -2)
-                graf.Insert(elem);
+                graf.Insert(city);
         }
         /*usuniecie miasta*/
         public static void UM(string city)
@@ -26,7 +26,7 @@ namespace projekt
             int index = -1;
             avl.Delete(city, ref index);
             if (index > -1)
-                graf.Delete(index);
+                graf.Delete(city);
         }
         /*wyszukanie*/
         public static void WM(string city)
@@ -49,19 +49,15 @@ namespace projekt
         public static void DD(string cityOne, string cityTwo, int length)
         {
             int indexOne = avl.GetIndex(cityOne);
-            if (indexOne == -1) { Console.WriteLine("NIE"); return; };
+            //if (indexOne == -1) { Console.WriteLine("NIE"); return; };
             int indexTwo = avl.GetIndex(cityTwo);
-            if (indexTwo == -1) { Console.WriteLine("NIE"); return; };
-            graf.AddRoad(indexOne, indexTwo, length);
+            //  if (indexTwo == -1) { Console.WriteLine("NIE"); return; };
+            graf.AddRoad(cityOne, cityTwo, length);
         }
         /*usuniecie drogi*/
         public static void UD(string cityOne, string cityTwo)
         {
-            int indexOne = avl.GetIndex(cityOne);
-            if (indexOne == -1) { Console.WriteLine("NIE"); return; };
-            int indexTwo = avl.GetIndex(cityTwo);
-            if (indexTwo == -1 ) { Console.WriteLine("NIE"); return; };
-            graf.RemoveRoad(indexOne, indexTwo);
+            graf.RemoveRoad(cityOne, cityTwo);
         }
         /*najkrotsza droga*/
         public static void ND(string startCity, string endCity)
@@ -69,19 +65,19 @@ namespace projekt
             int indexOne = avl.GetIndex(startCity);
             if (indexOne == -1) { Console.WriteLine("NIE"); return; };
             int indexTwo = avl.GetIndex(endCity);
-            if (indexTwo == -1 ) { Console.WriteLine("NIE"); return; };
-            Console.WriteLine(graf.FindRoad(indexOne, indexTwo));
+            if (indexTwo == -1) { Console.WriteLine("NIE"); return; };
+            //   Console.WriteLine(graf.FindRoad(indexOne, indexTwo));
         }
         /*sprawdzenie do ilu sie skroci droga*/
         public static void IS(string startCity, string cityOne, string cityTwo, int length)
         {
             int indexOne = avl.GetIndex(startCity);
-            if (indexOne == -1 ) { Console.WriteLine("NIE"); return; };
+            if (indexOne == -1) { Console.WriteLine("NIE"); return; };
             int indexTwo = avl.GetIndex(cityOne);
-            if (indexTwo == -1 ) { Console.WriteLine("NIE"); return; };
+            if (indexTwo == -1) { Console.WriteLine("NIE"); return; };
             int indexThree = avl.GetIndex(cityTwo);
             if (indexThree == -1) { Console.WriteLine("NIE"); return; };
-            Console.WriteLine(graf.VirtRoad(indexOne,indexTwo,indexThree,length));
+            //   Console.WriteLine(graf.VirtRoad(indexOne,indexTwo,indexThree,length));
         }
         static void Main(string[] args)
         {
@@ -111,7 +107,7 @@ namespace projekt
                         Console.Write(city[i] + ' ');
                         WM(city[i]);
                     }
-                    
+
                     LM("p");
 
                     string[] dd = {
@@ -135,7 +131,7 @@ namespace projekt
                     break;
                 case false:
 
-                    StreamReader sr = new StreamReader("../../projekt1_in7.txt");
+                    StreamReader sr = new StreamReader("../../projekt1_in5.txt");
                     string lines = sr.ReadLine();
                     string line;
                     int k = 0;
@@ -168,10 +164,15 @@ namespace projekt
                                 UD(parts[1], parts[2]);
                                 break;
                             case "ND":
-                                ND(parts[1], parts[2]);
+                                watch.Stop();
+                                Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
+                                //ND(parts[1], parts[2]);
                                 break;
                             case "IS":
-                                IS(parts[1], parts[2], parts[3], int.Parse(parts[4]));
+                                watch.Stop();
+                                Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
+                                //                                IS(parts[1], parts[2], parts[3], int.Parse(parts[4]));
+
                                 break;
                         }
                     }

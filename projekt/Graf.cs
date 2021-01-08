@@ -9,16 +9,16 @@ namespace projekt
     class Graf
     {
         // przechowuje puste miejsca w tablicy array
-        List<int> empty = new List<int>();
+       
         //przechowuje liste miast sasiadujacych i dlugosc drogi (id z drzewa avl)
-        List<GElem> array = new List<GElem>();
+        Dictionary<string,GElem> array = new Dictionary<string,GElem>();
         List<HeapElem> heap = new List<HeapElem>();
         TableElement[] table = null;
         private class GElem
         {
             // przechowuje liste sasiadow
             public string city;
-            public List<NeigbourVertex> incList = new List<NeigbourVertex>();
+            public Dictionary<string,int> incList = new Dictionary<string, int>();
             public GElem(string name)
             {
                 city = name;
@@ -27,12 +27,12 @@ namespace projekt
 
         class NeigbourVertex
         {
-            public int index = 0;
+            public string city;
             public int length = 0;
 
-            public NeigbourVertex(int i, int l)
+            public NeigbourVertex(string i, int l)
             {
-                index = i;
+                city = i;
                 length = l;
             }
         }
@@ -55,62 +55,43 @@ namespace projekt
             }
         }
 
-        public void Insert(Element city)
+        public void Insert(string city)
         {
-            if (empty.Count == 0)
+            if (!array.ContainsKey(city))
             {
-                array.Add(new GElem(city.city));
-                city.index = array.Count() - 1;
-            }
-            else
-            {
-                array[empty[0]] = new GElem(city.city);
-                city.index = empty[0];
-                empty.RemoveAt(0);
+                array.Add(city, new GElem(city));
             }
         }
 
-        public void Delete(int index)
+        public void Delete(string index)
         {
-            GElem node = array[index];
-            array[index] = null;
-            empty.Add(index);
+            array.Remove(index);
         }
 
-        void AddRoad(GElem e, int j, int scale)
+        void AddRoad(GElem e, string j, int scale)
         {
-            foreach (var x in e.incList)
-            {
-                if (x.index == j)
-                {
-                    x.length = scale;
-                    return;
-                }
-            }
-            e.incList.Add(new NeigbourVertex(j, scale));
+            
+            e.incList.Add(j, scale);
         }
 
-        public void AddRoad(int indexOne, int indexTwo, int length)
+        public void AddRoad(string indexOne, string indexTwo, int length)
         {
-            AddRoad(array.ElementAt(indexOne), indexTwo, length);
-            AddRoad(array.ElementAt(indexTwo), indexOne, length);
+            AddRoad(array[indexOne], indexTwo, length);
+            AddRoad(array[indexTwo], indexOne, length);
+        }
+        
+        void RemoveRoad(GElem e, string j)
+        {
+           Dictionary<string,int> incList = e.incList;
+            incList.Remove(j);
         }
 
-        void RemoveRoad(GElem e, int j)
+        public void RemoveRoad(string indexOne, string indexTwo)
         {
-            List<NeigbourVertex> incList = e.incList;
-            for (int i = 0; i < incList.Count; i++)
-            {
-                if (incList[i].index == j) { incList.RemoveAt(i); return; }
-            }
+            RemoveRoad(array[indexOne], indexTwo);
+            RemoveRoad(array[indexTwo], indexOne);
         }
-
-        public void RemoveRoad(int indexOne, int indexTwo)
-        {
-            RemoveRoad(array.ElementAt(indexOne), indexTwo);
-            RemoveRoad(array.ElementAt(indexTwo), indexOne);
-        }
-
+        /*
         private List<HeapElem> InsertHeap(List<HeapElem> heap, int vertex, int val)
         {
             HeapElem temp;
@@ -364,6 +345,6 @@ namespace projekt
                 }
             }
             return table;
-        }
+        }*/
     }
 }
