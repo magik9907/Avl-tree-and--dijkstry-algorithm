@@ -17,16 +17,13 @@ namespace projekt
         {
             Element elem = new Element(city);
             avl.Insert(elem);
-            if (elem.index != -2)
-                graf.Insert(city);
+            graf.Insert(city);
         }
         /*usuniecie miasta*/
         public static void UM(string city)
         {
-            int index = -1;
-            avl.Delete(city, ref index);
-            if (index > -1)
-                graf.Delete(city);
+            avl.Delete(city);
+            graf.Delete(city);
         }
         /*wyszukanie*/
         public static void WM(string city)
@@ -48,10 +45,6 @@ namespace projekt
         /*dodanie drogi*/
         public static void DD(string cityOne, string cityTwo, int length)
         {
-            int indexOne = avl.GetIndex(cityOne);
-            //if (indexOne == -1) { Console.WriteLine("NIE"); return; };
-            int indexTwo = avl.GetIndex(cityTwo);
-            //  if (indexTwo == -1) { Console.WriteLine("NIE"); return; };
             graf.AddRoad(cityOne, cityTwo, length);
         }
         /*usuniecie drogi*/
@@ -62,22 +55,17 @@ namespace projekt
         /*najkrotsza droga*/
         public static void ND(string startCity, string endCity)
         {
-            int indexOne = avl.GetIndex(startCity);
-            if (indexOne == -1) { Console.WriteLine("NIE"); return; };
-            int indexTwo = avl.GetIndex(endCity);
-            if (indexTwo == -1) { Console.WriteLine("NIE"); return; };
-            //   Console.WriteLine(graf.FindRoad(indexOne, indexTwo));
+            if (!avl.GetIndex(startCity)) { Console.WriteLine("NIE"); return; };
+            if (!avl.GetIndex(endCity)) { Console.WriteLine("NIE"); return; };
+            Console.WriteLine(graf.FindRoad(startCity, endCity));
         }
         /*sprawdzenie do ilu sie skroci droga*/
         public static void IS(string startCity, string cityOne, string cityTwo, int length)
         {
-            int indexOne = avl.GetIndex(startCity);
-            if (indexOne == -1) { Console.WriteLine("NIE"); return; };
-            int indexTwo = avl.GetIndex(cityOne);
-            if (indexTwo == -1) { Console.WriteLine("NIE"); return; };
-            int indexThree = avl.GetIndex(cityTwo);
-            if (indexThree == -1) { Console.WriteLine("NIE"); return; };
-            //   Console.WriteLine(graf.VirtRoad(indexOne,indexTwo,indexThree,length));
+            if (!avl.GetIndex(startCity)) { Console.WriteLine("NIE"); return; };
+            if (!avl.GetIndex(cityOne)) { Console.WriteLine("NIE"); return; };
+            if (!avl.GetIndex(cityTwo)) { Console.WriteLine("NIE"); return; };
+            Console.WriteLine(graf.VirtRoad(startCity, cityOne, cityTwo, length));
         }
         static void Main(string[] args)
         {
@@ -130,7 +118,6 @@ namespace projekt
                     ND("1", "5");
                     break;
                 case false:
-
                     StreamReader sr = new StreamReader("../../projekt1_in5.txt");
                     string lines = sr.ReadLine();
                     string line;
@@ -164,15 +151,10 @@ namespace projekt
                                 UD(parts[1], parts[2]);
                                 break;
                             case "ND":
-                                watch.Stop();
-                                Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
-                                //ND(parts[1], parts[2]);
+                                ND(parts[1], parts[2]);
                                 break;
                             case "IS":
-                                watch.Stop();
-                                Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
-                                //                                IS(parts[1], parts[2], parts[3], int.Parse(parts[4]));
-
+                                IS(parts[1], parts[2], parts[3], int.Parse(parts[4]));
                                 break;
                         }
                     }

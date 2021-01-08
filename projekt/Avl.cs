@@ -83,23 +83,22 @@ namespace projekt
                     curr.right = addToBranch(city, curr.right);
                     break;
                 case 0:
-                    city.index = -2;
                     return curr;
             }
             CountScale(curr);
             return CheckRotation(curr); ;
         }
 
-        public void Delete(string city, ref int index)
+        public void Delete(string city)
         {
             if (tree == null)
             {
                 return;
             }
-            tree = DelateFromBranch(city, tree, ref index);
+            tree = DelateFromBranch(city, tree);
         }
 
-        private Element DelateFromBranch(string city, Element curr, ref int index)
+        private Element DelateFromBranch(string city, Element curr )
         {
             //side == true -lewa: 
             //side == false -prawa:
@@ -109,7 +108,6 @@ namespace projekt
             switch (CompareString(curr.city, city))
             {
                 case 0:
-                    index = curr.index;
                     copy = getNewRoot(curr, curr.city);
                     if (copy == null) return copy;
                     if (curr.left != null && copy.city != curr.left.city)
@@ -118,8 +116,8 @@ namespace projekt
                         copy.right = curr.right;
                     curr = copy;
                     break;
-                case 1: curr.left = DelateFromBranch(city, curr.left, ref index); break;
-                case -1: curr.right = DelateFromBranch(city, curr.right, ref index); break;
+                case 1: curr.left = DelateFromBranch(city, curr.left); break;
+                case -1: curr.right = DelateFromBranch(city, curr.right); break;
 
             }
             CountScale(curr);
@@ -244,7 +242,7 @@ namespace projekt
 
         private void Print(Element curr, string prefix)
         {
-            string text = prefix + ((curr == null) ? "NULL" : curr.city + " L:" + curr.level + " S:" + curr.scale + " I:" + curr.index);
+            string text = prefix + ((curr == null) ? "NULL" : curr.city + " L:" + curr.level + " S:" + curr.scale );
             if (curr != null)
             {
                 Print(curr.right, "|" + prefix);
@@ -258,30 +256,9 @@ namespace projekt
         private int CompareString(string cityOne, string cityTwo)
         {
             return String.Compare(cityOne, cityTwo);
-
-            /*
-            currCity = currCity.ToLower();
-            newCity = newCity.ToLower();
-            try
-            {
-                for (short i = 0; i < newCity.Length; i++)
-                {
-                    if ((int)newCity[i] > (int)currCity[i])
-                        return -1;
-                    if ((int)newCity[i] < (int)currCity[i])
-                        return 1;
-                }
-            }
-            catch (Exception e)
-            {
-                if (newCity.Length > currCity.Length)
-                    return -1;
-                return 1;
-            }
-            return 1;*/
         }
 
-        public int GetIndex(string city)
+        public bool GetIndex(string city)
         {
             Element curr = tree;
             while (curr != null)
@@ -290,10 +267,10 @@ namespace projekt
                 {
                     case -1: curr = curr.right; break;
                     case 1: curr = curr.left; break;
-                    case 0: return curr.index;
+                    case 0: return true;
                 }
             }
-            return -1;
+            return false;
         }
 
     }

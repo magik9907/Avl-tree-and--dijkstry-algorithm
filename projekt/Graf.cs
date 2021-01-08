@@ -9,16 +9,19 @@ namespace projekt
     class Graf
     {
         // przechowuje puste miejsca w tablicy array
-       
+
         //przechowuje liste miast sasiadujacych i dlugosc drogi (id z drzewa avl)
-        Dictionary<string,GElem> array = new Dictionary<string,GElem>();
+        Dictionary<string, GElem> array = new Dictionary<string, GElem>();
         List<HeapElem> heap = new List<HeapElem>();
-        TableElement[] table = null;
+        Dictionary<string, TableElement> table = null;
+        List<int> empty = new List<int>();
+
         private class GElem
         {
             // przechowuje liste sasiadow
             public string city;
-            public Dictionary<string,int> incList = new Dictionary<string, int>();
+            public Dictionary<string, int> incList = new Dictionary<string, int>();
+            public int index = -1;
             public GElem(string name)
             {
                 city = name;
@@ -39,19 +42,19 @@ namespace projekt
 
         class TableElement
         {
-            public int prevVertex = -1;
+            public string prevVertex = "";
             public int length = int.MaxValue;
         }
 
         class HeapElem
         {
             public int length;
-            public int vertex;
+            public string vertex;
 
-            public HeapElem(int d, int v)
+            public HeapElem(int val, string vertex)
             {
-                this.length = d;
-                this.vertex = v;
+                this.length = val;
+                this.vertex = vertex;
             }
         }
 
@@ -60,18 +63,32 @@ namespace projekt
             if (!array.ContainsKey(city))
             {
                 array.Add(city, new GElem(city));
+                if (empty.Count == 0)
+                    array[city].index = array.Count - 1;
+                else
+                {
+                    array[city].index = empty[0];
+                    empty.RemoveAt(0);
+                }
             }
         }
 
         public void Delete(string index)
         {
+            if (!array.ContainsKey(index)) return;
+            Dictionary<string, int> incList = array[index].incList;
+            empty.Add(array[index].index);
             array.Remove(index);
+            foreach (KeyValuePair<string, int> x in incList)
+            {
+                array[x.Key].incList.Remove(index);
+            }
         }
 
         void AddRoad(GElem e, string j, int scale)
         {
-            
-            e.incList.Add(j, scale);
+            if (!e.incList.ContainsKey(j))
+                e.incList.Add(j, scale);
         }
 
         public void AddRoad(string indexOne, string indexTwo, int length)
@@ -79,10 +96,10 @@ namespace projekt
             AddRoad(array[indexOne], indexTwo, length);
             AddRoad(array[indexTwo], indexOne, length);
         }
-        
+
         void RemoveRoad(GElem e, string j)
         {
-           Dictionary<string,int> incList = e.incList;
+            Dictionary<string, int> incList = e.incList;
             incList.Remove(j);
         }
 
@@ -91,8 +108,8 @@ namespace projekt
             RemoveRoad(array[indexOne], indexTwo);
             RemoveRoad(array[indexTwo], indexOne);
         }
-        /*
-        private List<HeapElem> InsertHeap(List<HeapElem> heap, int vertex, int val)
+
+        private List<HeapElem> InsertHeap(List<HeapElem> heap, string vertex, int val)
         {
             HeapElem temp;
             int tempPos;
@@ -154,27 +171,37 @@ namespace projekt
             }
             catch (ArgumentOutOfRangeException e)
             {
+                if (tempPos * 2 == heap.Count)
+                {
+                    pos = tempPos;
+                    if (len > heap[tempPos * 2 - 1].length)
+                    {
+                        tempPos = tempPos * 2;
+                        temp = heap[tempPos - 1];
+                        heap.RemoveAt(tempPos - 1);
+                        heap.Insert(pos - 1, temp);
+                        temp = heap[pos];
+                        heap.RemoveAt(pos);
+                        heap.Insert(tempPos - 1, temp);
+                    }
+                }
             }
             return heap;
         }
 
-        private List<HeapElem> UpdateHeap(List<HeapElem> heap, int index, int newVal)
+        private List<HeapElem> UpdateHeap(List<HeapElem> heap, string index, int newVal)
         {
-            int i,j =heap.Count;
+            int i, j = heap.Count;
             for (i = 1; i <= heap.Count; i++)
             {
                 if (heap[i - 1].vertex == index)
                 {
-                    heap[i - 1].length = newVal;
+                    if (heap[i - 1].length > newVal)
+                        heap[i - 1].length = newVal;
+                    else
+                        return heap;
                     break;
                 }
-                if (heap[j - i].vertex == index)
-                {
-                    heap[j - i].length = newVal;
-                    i = j;
-                    break;
-                }
-                if (j < i) return heap;
             }
             if (i > heap.Count) return heap;
             HeapElem temp;
@@ -193,54 +220,69 @@ namespace projekt
             return heap;
         }
 
-        public string FindRoad(int v, int end)
+        public string FindRoad(string v, string end)
         {
             List<HeapElem> heap = new List<HeapElem>();
 
             heap = InsertHeap(heap, v, 0);
-
             HeapElem el = null;
-            bool[,] visitedHeap = new bool[array.Count, 2];
-            int vertex;
-            TableElement[] table = new TableElement[array.Count];
-            table[v] = new TableElement();
+            bool[] visited = new bool[array.Count];
+            bool[] onHeap = new bool[array.Count];
+            string vertex;
+            Dictionary<string, TableElement> table = new Dictionary<string, TableElement>();
+            foreach (KeyValuePair<string, GElem> x in array)
+                table.Add(x.Key, new TableElement());
+            int index = array[v].index;
             table[v].length = 0;
             table[v].prevVertex = v;
-            visitedHeap[v, 1] = true;
+            //0- isVisited, 1- is on heap
             int oldVal;
             while (heap.Count > 0)
             {
                 el = heap[0];
                 heap = RemoveHeap(heap);
                 vertex = el.vertex;
-                visitedHeap[vertex, 1] = false;
-                if (vertex == end) break;
-                if (visitedHeap[vertex, 0] == true) continue;
-                visitedHeap[vertex, 0] = true;
-                foreach (var x in array[vertex].incList)
+                index = array[el.vertex].index;
+                if (String.Compare(end, vertex) == 0) break;
+                if (visited[index] == true) continue;
+                visited[index] = true;
+                foreach (KeyValuePair<string, int> x in array[vertex].incList)
                 {
-                    if (table[x.index] == null)
-                        table[x.index] = new TableElement();
-                    oldVal = table[x.index].length;
-
-                    if (table[vertex].length + x.length <= table[x.index].length)
+                    oldVal = table[x.Key].length;
+                    index = array[x.Key].index;
+                    if (table[vertex].length + x.Value < oldVal)
                     {
-                        table[x.index].length = table[vertex].length + x.length;
-                        table[x.index].prevVertex = vertex;
-                        if (visitedHeap[x.index, 1])
-                            heap = UpdateHeap(heap, x.index, table[x.index].length);
-                    }
+                        table[x.Key].length = table[vertex].length + x.Value;
+                        table[x.Key].prevVertex = vertex;
 
-                    if (!visitedHeap[x.index, 0])
-                    {
-                        heap = InsertHeap(heap, x.index, table[x.index].length);
-                        visitedHeap[x.index, 1] = true;
+                        if (onHeap[index])
+                        {
+                            heap = UpdateHeap(heap, x.Key, table[x.Key].length);
+                        }
+                        else
+                        if (visited[index] == false)
+                        {
+                            heap = InsertHeap(heap, x.Key, table[x.Key].length);
+                            //  visitedHeap[x.Key][1] = true;
+                        }
                     }
+                    /*      if (visitedHeap[x.Key][1] == true)
+                              heap = UpdateHeap(heap, x.Key, table[x.Key].length);
+                          else
+                    *//*
+                    if (table[x.Key].length < oldVal && oldVal !=int.MaxValue)
+                        heap = UpdateHeap(heap, x.Key, table[x.Key].length);
+                    else
+                    if(visited[index] == false)
+                    {
+                        heap = InsertHeap(heap, x.Key, table[x.Key].length);
+                        //  visitedHeap[x.Key][1] = true;
+                    }*/
                 }
-
             }
-            if (table[end] == null) return "NIE";
-            int prev = end;
+            if (!table.ContainsKey(end) || table[end].length == int.MaxValue) return "NIE";
+            return table[end].length.ToString();
+            string prev = end;
             string line = array[prev].city;
             return table[end].length.ToString();
             do
@@ -248,12 +290,12 @@ namespace projekt
                 line = array[table[prev].prevVertex].city + "-" + line;
                 prev = table[prev].prevVertex;
             }
-            while (prev != v && prev != -1);
+            while (prev != v);
             line = table[end].length + ": " + line;
             return line;
         }
 
-        public string VirtRoad(int start, int startNewRoad, int endNewRoad, int roadLength)
+        public string VirtRoad(string start, string startNewRoad, string endNewRoad, int roadLength)
         {
             if (table == null)
                 table = GenerateShortestPath(start);
@@ -261,90 +303,98 @@ namespace projekt
             //[x,1] -is on heap
             bool[,] isVisitedHeap = new bool[array.Count, 2];
             int cityShorterPath = 0;
-            if (table[endNewRoad].length > roadLength + table[startNewRoad].length)
+            int oldValue = table[endNewRoad].length;
+            int newValue = roadLength + table[startNewRoad].length;
+            bool onHeap, isVisited;
+            if (oldValue > newValue)
             {
                 cityShorterPath++;
-                heap = InsertHeap(heap, endNewRoad, roadLength + table[startNewRoad].length);
+                heap = InsertHeap(heap, endNewRoad, newValue);
             }
             else if (table[startNewRoad].length > roadLength + table[endNewRoad].length)
             {
                 cityShorterPath++;
                 heap = InsertHeap(heap, startNewRoad, roadLength + table[endNewRoad].length);
             }
+            else return "0";
+
             HeapElem el = null;
             while (heap.Count > 0 && cityShorterPath < 100)
             {
                 el = heap[0];
                 heap = RemoveHeap(heap);
-                isVisitedHeap[el.vertex, 1] = false;
-                isVisitedHeap[el.vertex, 0] = true;
-                foreach (var x in array[el.vertex].incList)
+                isVisitedHeap[array[el.vertex].index, 1] = false;
+                isVisitedHeap[array[el.vertex].index, 0] = true;
+                foreach (KeyValuePair<string, int> x in array[el.vertex].incList)
                 {
-                    if (table[x.index].length > el.length + x.length)
+                    oldValue = table[x.Key].length;
+                    newValue = el.length + x.Value;
+                    if (oldValue > newValue)
                     {
-                        if (isVisitedHeap[x.index, 1])
+                        onHeap = isVisitedHeap[array[x.Key].index, 1];
+                        isVisited = isVisitedHeap[array[x.Key].index, 0];
+                        if (onHeap)
                         {
-                            heap = UpdateHeap(heap, x.index, el.length + x.length);
+                            heap = UpdateHeap(heap, x.Key, el.length + x.Value);
                         }
-                        else
+                        else if (!isVisited)
                         {
-                            if (!isVisitedHeap[x.index, 0])
-                            {
-                                cityShorterPath++;
-                                heap = InsertHeap(heap, x.index, el.length + x.length);
-                                isVisitedHeap[x.index, 1] = true;
-                            }
+                            cityShorterPath++;
+                            heap = InsertHeap(heap, x.Key, newValue);
+                            isVisitedHeap[array[x.Key].index, 1] = true;
                         }
                     }
                 }
             }
-            return (cityShorterPath >= 100) ? "100+" : cityShorterPath.ToString();
+            return ((cityShorterPath >= 100) ? "100+" : cityShorterPath.ToString());
         }
 
-        private TableElement[] GenerateShortestPath(int v)
+        private Dictionary<string, TableElement> GenerateShortestPath(string v)
         {
             List<HeapElem> heap = new List<HeapElem>();
-
             heap = InsertHeap(heap, v, 0);
-
             HeapElem el = null;
-            bool[,] visitedHeap = new bool[array.Count, 2];
-            int vertex;
-            TableElement[] table = new TableElement[array.Count];
-            table[v] = new TableElement();
+            bool[] visited = new bool[array.Count];
+            bool[] onHeap = new bool[array.Count];
+            string vertex;
+            Dictionary<string, TableElement> table = new Dictionary<string, TableElement>();
+            foreach (KeyValuePair<string, GElem> x in array)
+                table.Add(x.Key, new TableElement());
+            int index = array[v].index;
             table[v].length = 0;
             table[v].prevVertex = v;
-            visitedHeap[v, 1] = true;
+            //0- isVisited, 1- is on heap
             int oldVal;
             while (heap.Count > 0)
             {
                 el = heap[0];
                 heap = RemoveHeap(heap);
                 vertex = el.vertex;
-                visitedHeap[vertex, 1] = false;
-                if (visitedHeap[vertex, 0] == true) continue;
-                visitedHeap[vertex, 0] = true;
-                foreach (var x in array[vertex].incList)
+                index = array[el.vertex].index;
+                if (visited[index] == true) continue;
+                visited[index] = true;
+                foreach (KeyValuePair<string, int> x in array[vertex].incList)
                 {
-                    if (table[x.index] == null)
-                        table[x.index] = new TableElement();
-                    oldVal = table[x.index].length;
+                    oldVal = table[x.Key].length;
+                    index = array[x.Key].index;
+                    if (table[vertex].length + x.Value < oldVal)
+                    {
+                        table[x.Key].length = table[vertex].length + x.Value;
+                        table[x.Key].prevVertex = vertex;
 
-                    if (table[vertex].length + x.length <= table[x.index].length)
-                    {
-                        table[x.index].length = table[vertex].length + x.length;
-                        table[x.index].prevVertex = vertex;
-                        if (visitedHeap[x.index, 1])
-                            heap = UpdateHeap(heap, x.index, table[x.index].length);
-                    }
-                    if (visitedHeap[x.index, 0] == false)
-                    {
-                        heap = InsertHeap(heap, x.index, table[x.index].length);
-                        visitedHeap[x.index, 1] = true;
+                        if (onHeap[index])
+                        {
+                            heap = UpdateHeap(heap, x.Key, table[x.Key].length);
+                        }
+                        else
+                        if (visited[index] == false)
+                        {
+                            heap = InsertHeap(heap, x.Key, table[x.Key].length);
+                        }
                     }
                 }
             }
             return table;
-        }*/
+        }
     }
 }

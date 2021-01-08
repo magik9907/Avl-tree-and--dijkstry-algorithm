@@ -13,7 +13,6 @@ namespace projekt
         public Element left = null;
         public Element right = null;
         public int level = 1;
-        public int index = -1;
         public Element(string cityName)
         {
             city = cityName;
