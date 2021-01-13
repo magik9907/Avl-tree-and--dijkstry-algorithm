@@ -8,18 +8,18 @@ namespace projekt
 {
     class Graf
     {
-        // przechowuje puste miejsca w tablicy array
-
         //przechowuje liste miast sasiadujacych i dlugosc drogi (id z drzewa avl)
         Dictionary<string, GElem> array = new Dictionary<string, GElem>();
         List<HeapElem> heap = new List<HeapElem>();
         Dictionary<string, TableElement> table = null;
+        string prevCityPath = null;
         List<int> empty = new List<int>();
-
+        bool[] visited;
+        bool[] onHeap;
         private class GElem
         {
-            // przechowuje liste sasiadow
             public string city;
+            // przechowuje liste sasiadow
             public Dictionary<string, int> incList = new Dictionary<string, int>();
             public int index = -1;
             public GElem(string name)
@@ -220,64 +220,29 @@ namespace projekt
             return heap;
         }
 
-        public string FindRoad(string v, string end)
+        public string FindRoad(string start, string end)
         {
-            List<HeapElem> heap = new List<HeapElem>();
-
-            heap = InsertHeap(heap, v, 0);
-            HeapElem el = null;
-            bool[] visited = new bool[array.Count];
-            bool[] onHeap = new bool[array.Count];
-            string vertex;
-            Dictionary<string, TableElement> table = new Dictionary<string, TableElement>();
-            foreach (KeyValuePair<string, GElem> x in array)
-                table.Add(x.Key, new TableElement());
-            int index = array[v].index;
-            table[v].length = 0;
-            table[v].prevVertex = v;
-            //0- isVisited, 1- is on heap
-            int oldVal;
-            while (heap.Count > 0)
+            if (prevCityPath != start)
             {
-                el = heap[0];
-                heap = RemoveHeap(heap);
-                vertex = el.vertex;
-                index = array[el.vertex].index;
-                if (String.Compare(end, vertex) == 0) break;
-                if (visited[index] == true) continue;
-                visited[index] = true;
-                foreach (KeyValuePair<string, int> x in array[vertex].incList)
+                prevCityPath = start;
+                heap = new List<HeapElem>();
+                heap = InsertHeap(heap, start, 0);
+                visited = new bool[array.Count];
+                onHeap = new bool[array.Count];
+                table = new Dictionary<string, TableElement>();
+                table.Add(start, new TableElement());
+                /*foreach (KeyValuePair<string, GElem> x in array)
+                    table.Add(x.Key, new TableElement());
+                */
+                table[start].length = 0;
+                table[start].prevVertex = start;
+                Dijkstry(start, end);
+            }
+            else
+            {
+                if (!visited[array[end].index])
                 {
-                    oldVal = table[x.Key].length;
-                    index = array[x.Key].index;
-                    if (table[vertex].length + x.Value < oldVal)
-                    {
-                        table[x.Key].length = table[vertex].length + x.Value;
-                        table[x.Key].prevVertex = vertex;
-
-                        if (onHeap[index])
-                        {
-                            heap = UpdateHeap(heap, x.Key, table[x.Key].length);
-                        }
-                        else
-                        if (visited[index] == false)
-                        {
-                            heap = InsertHeap(heap, x.Key, table[x.Key].length);
-                            //  visitedHeap[x.Key][1] = true;
-                        }
-                    }
-                    /*      if (visitedHeap[x.Key][1] == true)
-                              heap = UpdateHeap(heap, x.Key, table[x.Key].length);
-                          else
-                    *//*
-                    if (table[x.Key].length < oldVal && oldVal !=int.MaxValue)
-                        heap = UpdateHeap(heap, x.Key, table[x.Key].length);
-                    else
-                    if(visited[index] == false)
-                    {
-                        heap = InsertHeap(heap, x.Key, table[x.Key].length);
-                        //  visitedHeap[x.Key][1] = true;
-                    }*/
+                    Dijkstry(start, end);
                 }
             }
             if (!table.ContainsKey(end) || table[end].length == int.MaxValue) return "NIE";
@@ -290,10 +255,54 @@ namespace projekt
                 line = array[table[prev].prevVertex].city + "-" + line;
                 prev = table[prev].prevVertex;
             }
-            while (prev != v);
+            while (prev != start);
             line = table[end].length + ": " + line;
             return line;
         }
+
+        private void Dijkstry(string start, string end)
+        {
+            HeapElem smallestPathFromCity = null;
+            string vertexFromHeap;
+            int index = array[start].index;
+            //0- isVisited, 1- is on heap
+            int oldValNeighbour;
+            int lengthToCurrCity;
+            while (heap.Count > 0)
+            {
+                smallestPathFromCity = heap[0];
+                heap = RemoveHeap(heap);
+                vertexFromHeap = smallestPathFromCity.vertex;
+                index = array[smallestPathFromCity.vertex].index;
+                if (visited[index] == true) continue;
+                lengthToCurrCity = smallestPathFromCity.length;
+                visited[index] = true;
+                foreach (KeyValuePair<string, int> x in array[vertexFromHeap].incList)
+                {
+                    if (!table.ContainsKey(x.Key))
+                    {
+                        table.Add(x.Key, new TableElement());
+                    }
+                    oldValNeighbour = table[x.Key].length;
+                    index = array[x.Key].index;
+                    if (lengthToCurrCity + x.Value < oldValNeighbour)
+                    {
+                        table[x.Key].length = lengthToCurrCity + x.Value;
+                        table[x.Key].prevVertex = vertexFromHeap;
+
+                        if (visited[index] == false)
+                        {
+                            if (oldValNeighbour != int.MaxValue)
+                                heap = UpdateHeap(heap, x.Key, table[x.Key].length);
+                            else
+                                heap = InsertHeap(heap, x.Key, table[x.Key].length);
+                        }
+                    }
+                }
+                if (String.Compare(end, vertexFromHeap) == 0) break;
+            }
+        }
+
 
         public string VirtRoad(string start, string startNewRoad, string endNewRoad, int roadLength)
         {
@@ -396,5 +405,6 @@ namespace projekt
             }
             return table;
         }
+
     }
 }

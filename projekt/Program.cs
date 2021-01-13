@@ -118,15 +118,13 @@ namespace projekt
                     ND("1", "5");
                     break;
                 case false:
-                    StreamReader sr = new StreamReader("../../projekt1_in5.txt");
+                    StreamReader sr = new StreamReader("../../projekt1_in7.txt");
                     string lines = sr.ReadLine();
                     string line;
-                    int k = 0;
-                    while (k < int.Parse(lines))
+                    while (!sr.EndOfStream)
                     {
                         line = sr.ReadLine();
                         parts = line.Split(' ');
-                        k++;
                         switch (parts[0])
                         {
                             case "DM":
