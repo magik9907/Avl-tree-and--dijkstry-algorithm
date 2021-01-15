@@ -10,8 +10,8 @@ namespace projekt
     {
         //przechowuje liste miast sasiadujacych i dlugosc drogi (id z drzewa avl)
         Dictionary<string, GElem> array = new Dictionary<string, GElem>();
-        // List<HeapElem> heap = new List<HeapElem>();
-        SortedDictionary<string, int> heap = null;
+        //List<HeapElem> heap = new List<HeapElem>();
+        SortedSet<HeapElem> heap = null;
         Dictionary<string, TableElement> table = null;
         string prevCityPath = null;
         List<int> empty = new List<int>();
@@ -55,6 +55,18 @@ namespace projekt
             {
                 this.length = val;
                 this.vertex = vertex;
+            }
+        }
+
+        class ByLength : IComparer<HeapElem>
+        {
+            public int Compare(HeapElem x, HeapElem y)
+            {
+                if (x.length > y.length ) return 1;
+                if (x.length < y.length ) return -1;
+                if (x.vertex != y.vertex) return -1;
+                if (x.vertex == y.vertex) return 0;
+                return 0;
             }
         }
 
@@ -225,9 +237,9 @@ namespace projekt
             if (prevCityPath != start)
             {
                 prevCityPath = start;
-                heap = new SortedDictionary<string, int>();
-                //heap = InsertHeap(heap, start, 0);
-                heap.Add(start, 0);
+                heap = new SortedSet<HeapElem>(new ByLength());
+                // heap = InsertHeap(heap, start, 0);
+                heap.Add(new HeapElem(0, start));
                 visited = new bool[array.Count];
                 table = new Dictionary<string, TableElement>();
                 table.Add(start, new TableElement());
@@ -260,81 +272,83 @@ namespace projekt
 
         private void Dijkstry(string start, string end)
         {
-            int smallestPathFromCity;
-            string key;
-            string vertexFromHeap;
-            int index = array[start].index;
-            //0- isVisited, 1- is on heap
-            int oldValNeighbour;
-            int lengthToCurrCity;
+            HeapElem smallestPathFromCity = null, p, t;
+            string vertexFromHeap, key;
+            int index = array[start].index, oldValNeighbour, lengthToCurrCity, sum;
             while (heap.Count > 0)
             {
-                key = heap.Keys.First();
-                smallestPathFromCity = heap[key];
-                
-                index = array[key].index;
+                smallestPathFromCity = heap.First();
+                //heap = RemoveHeap(heap);
+                heap.Remove(smallestPathFromCity);
+                vertexFromHeap = smallestPathFromCity.vertex;
+                index = array[smallestPathFromCity.vertex].index;
                 if (visited[index] == true) continue;
-                lengthToCurrCity = smallestPathFromCity;
+                lengthToCurrCity = smallestPathFromCity.length;
                 visited[index] = true;
-                foreach (KeyValuePair<string, int> x in array[key].incList)
+
+                foreach (KeyValuePair<string, int> x in array[vertexFromHeap].incList)
                 {
                     if (!table.ContainsKey(x.Key))
                     {
                         table.Add(x.Key, new TableElement());
                     }
-                    oldValNeighbour = table[x.Key].length;
-                    index = array[x.Key].index;
-                    if (lengthToCurrCity + x.Value < oldValNeighbour)
+                    key = x.Key;
+                    oldValNeighbour = table[key].length;
+                    index = array[key].index;
+                    sum = lengthToCurrCity + x.Value;
+                    if (sum < oldValNeighbour)
                     {
-                        table[x.Key].length = lengthToCurrCity + x.Value;
-                        table[x.Key].prevVertex = key;
+                        table[key].length = sum;
+                        table[key].prevVertex = vertexFromHeap;
 
                         if (visited[index] == false)
                         {
-                            try
+                            t = new HeapElem(oldValNeighbour, key);
+                            p = new HeapElem(sum, key);
+                            if (heap.TryGetValue(t, out t))
                             {
-                                heap.Add(x.Key, lengthToCurrCity + x.Value);
+                                heap.Remove(t);
+                                heap.Add(p);
                             }
-                            catch (Exception)
-                            {
-                                heap[x.Key]=lengthToCurrCity + x.Value;
-                            }
-                        /*    if (oldValNeighbour != int.MaxValue)
-                                heap = UpdateHeap(heap, x.Key, table[x.Key].length);
                             else
-                                heap = InsertHeap(heap, x.Key, table[x.Key].length);
-                        */}
+                                heap.Add(p);
+                            /* if (oldValNeighbour != int.MaxValue)
+                                 heap = UpdateHeap(heap, x.Key, table[x.Key].length);
+                             else
+                                 heap = InsertHeap(heap, x.Key, table[x.Key].length);*/
+                        }
                     }
                 }
-                if (String.Compare(end, key) == 0) break;
+                if (String.Compare(end, vertexFromHeap) == 0) break;
             }
         }
 
 
         public string VirtRoad(string start, string startNewRoad, string endNewRoad, int roadLength)
         {
-            if (prevCityPath != start)
+            if (prevCityPath != start || table == null)
             {
                 prevCityPath = start;
-               /* heap = new List<HeapElem>();
-                heap = InsertHeap(heap, start, 0);
-                */
-                
-                
+               // heap = new List<HeapElem>();
+                heap = new SortedSet<HeapElem>(new ByLength());
+               // heap = InsertHeap(heap, start, 0);
                 visited = new bool[array.Count];
-
+                heap.Add(new HeapElem(0,start));
                 table = new Dictionary<string, TableElement>();
                 table.Add(start, new TableElement());
                 table[start].length = 0;
                 table[start].prevVertex = start;
                 Dijkstry(start, startNewRoad);
-                Dijkstry(start, endNewRoad);
+                if (!visited[array[endNewRoad].index])
+                {
+                    Dijkstry(start, endNewRoad);
+                }
             }
             else
             {
                 if (!visited[array[startNewRoad].index])
                 {
-                    Dijkstry(start, start);
+                    Dijkstry(start, startNewRoad);
                 }
                 if (!visited[array[endNewRoad].index])
                 {
@@ -342,29 +356,33 @@ namespace projekt
                 }
 
             }
-            List<HeapElem> heapNR = new List<HeapElem>();
+            SortedSet<HeapElem> heapNR = new SortedSet<HeapElem>(new ByLength());
             //[x,1] -is on heap
             bool[,] isVisitedHeap = new bool[array.Count, 2];
             int cityShortestPath = 0;
             int oldValue = table[endNewRoad].length;
             int newValue = roadLength + table[startNewRoad].length;
             bool onHeap, isVisited;
+            HeapElem t, p;
             if (oldValue > newValue)
             {
                 cityShortestPath++;
-                heapNR = InsertHeap(heapNR, endNewRoad, newValue);
+                heapNR.Add(new HeapElem(newValue, endNewRoad));
+              //  heapNR = InsertHeap(heapNR, endNewRoad, newValue);
             }
             else if (table[startNewRoad].length > roadLength + table[endNewRoad].length)
             {
                 cityShortestPath++;
-                heapNR = InsertHeap(heapNR, startNewRoad, roadLength + table[endNewRoad].length);
+                heapNR.Add(new HeapElem(roadLength + table[endNewRoad].length, startNewRoad));
+                //heapNR = InsertHeap(heapNR, startNewRoad, roadLength + table[endNewRoad].length);
             }
             else return "0";
 
             HeapElem el = null;
             while (heapNR.Count > 0 && cityShortestPath < 100)
             {
-                //el = heapNR[0];
+                el = heapNR.First();
+                heapNR.Remove(el);
                 //heapNR = RemoveHeap(heapNR);
                 isVisitedHeap[array[el.vertex].index, 1] = false;
                 isVisitedHeap[array[el.vertex].index, 0] = true;
@@ -380,19 +398,20 @@ namespace projekt
                     {
                         onHeap = isVisitedHeap[array[x.Key].index, 1];
                         isVisited = isVisitedHeap[array[x.Key].index, 0];
-                       
-                        
-                        
-                        /* if (onHeap)
+                        if (onHeap)
                         {
-                            heapNR = UpdateHeap(heapNR, x.Key, el.length + x.Value);
+                            heapNR.Remove(new HeapElem(oldValue, x.Key));
+                            heapNR.Add(new HeapElem(newValue, x.Key));
+
+                            //heapNR = UpdateHeap(heapNR, x.Key, el.length + x.Value);
                         }
                         else if (!isVisited)
                         {
                             cityShortestPath++;
-                            heapNR = InsertHeap(heapNR, x.Key, newValue);
+                            heapNR.Add(new HeapElem(newValue, x.Key));
+                            //heapNR = InsertHeap(heapNR, x.Key, newValue);
                             isVisitedHeap[array[x.Key].index, 1] = true;
-                        }*/
+                        }
                     }
                 }
             }

@@ -106,8 +106,9 @@ namespace projekt
                         "2 4 15",
                         "3 4 11",
                         "3 6 2",
-                        "3 6 3",
                         "4 5 6",
+                        "2 6 2",
+                        "5 6 9"
                     };
 
                     for (int i = 0; i < dd.Length; i++)
@@ -154,7 +155,7 @@ namespace projekt
                                 ND(parts[1], parts[2]);
                                 break;  
                             case "IS":
-                                //IS(parts[1], parts[2], parts[3], int.Parse(parts[4]));
+                                IS(parts[1], parts[2], parts[3], int.Parse(parts[4]));
                                 break;
                         }
                     }
