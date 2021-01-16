@@ -10,12 +10,12 @@ namespace projekt
     {
         //przechowuje liste miast sasiadujacych i dlugosc drogi (id z drzewa avl)
         Dictionary<string, GElem> array = new Dictionary<string, GElem>();
-        //List<HeapElem> heap = new List<HeapElem>();
         SortedSet<HeapElem> heap = null;
         Dictionary<string, TableElement> table = null;
         string prevCityPath = null;
         List<int> empty = new List<int>();
         Dictionary<string, bool> visited = null;
+
         private class GElem
         {
             public string city;
@@ -127,7 +127,6 @@ namespace projekt
             {
                 prevCityPath = start;
                 heap = new SortedSet<HeapElem>(new ByLength());
-                // heap = InsertHeap(heap, start, 0);
                 heap.Add(new HeapElem(0, start));
                 visited = new Dictionary<string, bool>();
                 visited.Add(start, false);
@@ -201,10 +200,6 @@ namespace projekt
                             }
                             else
                                 heap.Add(p);
-                            /* if (oldValNeighbour != int.MaxValue)
-                                 heap = UpdateHeap(heap, x.Key, table[x.Key].length);
-                             else
-                                 heap = InsertHeap(heap, x.Key, table[x.Key].length);*/
                         }
                     }
                 }
@@ -218,9 +213,7 @@ namespace projekt
             if (prevCityPath != start || table == null)
             {
                 prevCityPath = start;
-                // heap = new List<HeapElem>();
                 heap = new SortedSet<HeapElem>(new ByLength());
-                // heap = InsertHeap(heap, start, 0);
                 visited = new Dictionary<string, bool>();
                 visited.Add(start, false);
                 heap.Add(new HeapElem(0, start));
@@ -252,14 +245,12 @@ namespace projekt
                 cityShortestPath++;
                 isVisitedHeap.Add(endNewRoad, new bool[2]);
                 heapNR.Add(new HeapElem(newValue, endNewRoad));
-                //  heapNR = InsertHeap(heapNR, endNewRoad, newValue);
             }
             else if (table[startNewRoad].length > roadLength + table[endNewRoad].length)
             {
                 isVisitedHeap.Add(startNewRoad, new bool[2]);
                 cityShortestPath++;
                 heapNR.Add(new HeapElem(roadLength + table[endNewRoad].length, startNewRoad));
-                //heapNR = InsertHeap(heapNR, startNewRoad, roadLength + table[endNewRoad].length);
             }
             else return "0";
 
@@ -268,7 +259,6 @@ namespace projekt
             {
                 el = heapNR.First();
                 heapNR.Remove(el);
-                //heapNR = RemoveHeap(heapNR);
                 isVisitedHeap[el.vertex][1] = false;
                 isVisitedHeap[el.vertex][0] = true;
                 foreach (KeyValuePair<string, int> x in array[el.vertex].incList)
@@ -289,14 +279,11 @@ namespace projekt
                         {
                             heapNR.Remove(new HeapElem(oldValue, x.Key));
                             heapNR.Add(new HeapElem(newValue, x.Key));
-
-                            //heapNR = UpdateHeap(heapNR, x.Key, el.length + x.Value);
                         }
                         else if (!isVisited)
                         {
                             cityShortestPath++;
                             heapNR.Add(new HeapElem(newValue, x.Key));
-                            //heapNR = InsertHeap(heapNR, x.Key, newValue);
                             isVisitedHeap[x.Key][1] = true;
                         }
                     }

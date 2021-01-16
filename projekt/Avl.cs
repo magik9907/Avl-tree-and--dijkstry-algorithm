@@ -242,7 +242,7 @@ namespace projekt
 
         private void Print(Element curr, string prefix)
         {
-            string text = prefix + ((curr == null) ? "NULL" : curr.city + " L:" + curr.level + " S:" + curr.scale );
+            string text = prefix + curr.city;
             if (curr != null)
             {
                 Print(curr.right, "|" + prefix);
