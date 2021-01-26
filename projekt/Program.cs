@@ -68,7 +68,7 @@ namespace projekt
 
             watch.Start();
             string[] parts;
-            StreamReader sr = new StreamReader("../../projekt1_in7.txt");
+            StreamReader sr = new StreamReader("../../projekt1_in5.txt");
             string lines = sr.ReadLine();
             string line;
             bool k = false;

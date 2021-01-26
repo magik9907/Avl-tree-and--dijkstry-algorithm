@@ -98,7 +98,7 @@ namespace projekt
             tree = DelateFromBranch(city, tree);
         }
 
-        private Element DelateFromBranch(string city, Element curr )
+        private Element DelateFromBranch(string city, Element curr)
         {
             //side == true -lewa: 
             //side == false -prawa:
@@ -174,17 +174,15 @@ namespace projekt
             Element copy = child;
             if (child.scale == 2)
             {
-                if (child.left.scale == 1)
-                    copy = RR(child);
-                else if (child.left.scale == -1)
+                if (child.left.scale == -1)
                     copy = LR(child);
+                else copy = RR(child);
             }
             else if (child.scale == -2)
             {
-                if (child.right.scale == -1)
-                    copy = LL(child);
-                else if (child.right.scale == 1)
+                if (child.right.scale == 1)
                     copy = RL(child);
+                else copy = LL(child);
             }
             return copy;
         }
