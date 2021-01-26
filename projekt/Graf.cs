@@ -13,7 +13,6 @@ namespace projekt
         SortedSet<HeapElem> heap = null;
         Dictionary<string, TableElement> table = null;
         string prevCityPath = null;
-        List<int> empty = new List<int>();
         Dictionary<string, bool> visited = null;
 
         private class GElem
@@ -21,7 +20,6 @@ namespace projekt
             public string city;
             // przechowuje liste sasiadow
             public Dictionary<string, int> incList = new Dictionary<string, int>();
-            public int index = -1;
             public GElem(string name)
             {
                 city = name;
@@ -75,13 +73,6 @@ namespace projekt
             if (!array.ContainsKey(city))
             {
                 array.Add(city, new GElem(city));
-                if (empty.Count == 0)
-                    array[city].index = array.Count - 1;
-                else
-                {
-                    array[city].index = empty[0];
-                    empty.RemoveAt(0);
-                }
             }
         }
 
@@ -89,7 +80,6 @@ namespace projekt
         {
             if (!array.ContainsKey(index)) return;
             Dictionary<string, int> incList = array[index].incList;
-            empty.Add(array[index].index);
             array.Remove(index);
             foreach (KeyValuePair<string, int> x in incList)
             {
@@ -100,7 +90,9 @@ namespace projekt
         void AddRoad(GElem e, string j, int scale)
         {
             if (!e.incList.ContainsKey(j))
+            {
                 e.incList.Add(j, scale);
+            }
         }
 
         public void AddRoad(string indexOne, string indexTwo, int length)
@@ -263,9 +255,9 @@ namespace projekt
                 isVisitedHeap[el.vertex][0] = true;
                 foreach (KeyValuePair<string, int> x in array[el.vertex].incList)
                 {
-                    if (!isVisitedHeap.ContainsKey(x.Key) )
+                    if (!isVisitedHeap.ContainsKey(x.Key))
                         isVisitedHeap.Add(x.Key, new bool[2]);
-                        if (!visited[x.Key])
+                    if (!visited[x.Key])
                     {
                         Dijkstry(start, x.Key);
                     }

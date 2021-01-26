@@ -54,16 +54,11 @@ namespace projekt
         /*najkrotsza droga*/
         public static void ND(string startCity, string endCity)
         {
-            if (!avl.GetIndex(startCity)) { Console.WriteLine("NIE"); return; };
-            if (!avl.GetIndex(endCity)) { Console.WriteLine("NIE"); return; };
             Console.WriteLine(graf.FindRoad(startCity, endCity));
         }
         /*sprawdzenie do ilu sie skroci droga*/
         public static void IS(string startCity, string cityOne, string cityTwo, int length)
         {
-            if (!avl.GetIndex(startCity)) { Console.WriteLine("NIE"); return; };
-            if (!avl.GetIndex(cityOne)) { Console.WriteLine("NIE"); return; };
-            if (!avl.GetIndex(cityTwo)) { Console.WriteLine("NIE"); return; };
             Console.WriteLine(graf.VirtRoad(startCity, cityOne, cityTwo, length));
         }
 
@@ -73,7 +68,7 @@ namespace projekt
 
             watch.Start();
             string[] parts;
-            StreamReader sr = new StreamReader("../../projekt1_in8.txt");
+            StreamReader sr = new StreamReader("../../projekt1_in7.txt");
             string lines = sr.ReadLine();
             string line;
             bool k = false;
