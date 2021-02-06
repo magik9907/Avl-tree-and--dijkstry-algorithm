@@ -174,15 +174,17 @@ namespace projekt
             Element copy = child;
             if (child.scale == 2)
             {
-                if (child.left.scale == -1)
+                if (child.left.scale == 1 || child.left.scale == 0 )
+                    copy = RR(child);
+                else if (child.left.scale == -1)
                     copy = LR(child);
-                else copy = RR(child);
             }
-            else if (child.scale == -2)
+            else if (child.scale == -2 )
             {
-                if (child.right.scale == 1)
+                if (child.right.scale == -1 || child.right.scale == 0)
+                    copy = LL(child);
+                else if (child.right.scale == 1)
                     copy = RL(child);
-                else copy = LL(child);
             }
             return copy;
         }
@@ -240,6 +242,8 @@ namespace projekt
 
         private void Print(Element curr, string prefix)
         {
+            if (curr == null)
+                return;
             string text = prefix + curr.city;
             if (curr != null)
             {

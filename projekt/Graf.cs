@@ -137,10 +137,9 @@ namespace projekt
             }
 
             if (!table.ContainsKey(end) || table[end].length == int.MaxValue) return "NIE";
-            return table[end].length.ToString();
+            //return table[end].length.ToString();
             string prev = end;
             string line = array[prev].city;
-            return table[end].length.ToString();
             do
             {
                 line = array[table[prev].prevVertex].city + "-" + line;
